@@ -1,0 +1,273 @@
+# Procurement Agent Backend
+
+A modular FastAPI backend with multi-agent architecture for procurement assistance, featuring RAG (Retrieval-Augmented Generation) capabilities and Microsoft Teams integration.
+
+## 🏗️ Architecture Overview
+
+This backend implements a **supervisor-multiagent architecture** with the following key components:
+
+### 🤖 Agent System
+- **Supervisor Agent**: Orchestrates workflows and routes tasks to appropriate agents
+- **RAG Agent**: Handles document retrieval and question answering using LangChain/LangGraph
+- **Base Agent**: Abstract base class providing common functionality for all agents
+
+### 📁 Project Structure
+
+```
+backend/
+├── app/
+│   ├── agents/                 # Multi-agent system
+│   │   ├── __init__.py
+│   │   ├── base_agent.py      # Abstract base agent class
+│   │   ├── rag_agent.py       # RAG agent with LangGraph workflow
+│   │   └── supervisor_agent.py # Supervisor for agent orchestration
+│   ├── services/              # Business logic services
+│   │   ├── __init__.py
+│   │   ├── azure_search_service.py  # Azure Search integration
+│   │   └── memory_service.py        # Conversation memory management
+│   ├── routers/               # API endpoints
+│   │   ├── __init__.py
+│   │   └── agents.py          # Agent interaction endpoints
+│   └── config.py              # Configuration management
+├── main.py                    # FastAPI application entry point
+├── requirements.txt           # Python dependencies
+├── env.example               # Environment variables template
+└── README.md                 # This file
+```
+
+## 🚀 Features
+
+### Core Capabilities
+- **Multi-Agent RAG System**: Advanced document retrieval and question answering
+- **Supervisor Orchestration**: Intelligent task routing and workflow management
+- **Azure Integration**: Azure OpenAI, Azure Search, and Azure Cognitive Services
+- **Microsoft Teams Ready**: Built-in endpoints for Teams bot integration
+- **Conversation Memory**: Persistent conversation history across sessions
+- **Adaptive Search**: Hybrid vector + keyword search with semantic capabilities
+
+### API Endpoints
+
+#### Agent Interaction
+- `POST /agents/query` - Process queries through the multi-agent system
+- `POST /agents/workflow` - Execute multi-step workflows
+- `GET /agents/status` - Get system and agent status
+- `GET /agents/capabilities` - List all system capabilities
+
+#### Microsoft Teams Integration
+- `POST /agents/teams/message` - Handle Teams messages
+- `POST /agents/teams/adaptive-card` - Generate Adaptive Cards for Teams
+- `GET /agents/health` - Health check for monitoring
+
+#### Conversation Management
+- `DELETE /agents/conversations/{id}` - Clear conversation history
+- `GET /agents/conversations` - List active conversations
+
+## 🛠️ Setup Instructions
+
+### 1. Environment Setup
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 2. Configuration
+
+```bash
+# Copy environment template
+cp env.example .env
+
+# Edit .env with your Azure credentials
+nano .env
+```
+
+Required environment variables:
+- `AZURE_OPENAI_CHAT_KEY` - Azure OpenAI API key for chat
+- `AZURE_OPENAI_CHAT_ENDPOINT` - Azure OpenAI endpoint URL
+- `AZURE_OPENAI_CHAT_DEPLOYMENT` - Deployment name (e.g., "gpt-4")
+- `AZURE_OPENAI_EMBEDDING_KEY` - Azure OpenAI API key for embeddings
+- `AZURE_OPENAI_EMBEDDING_ENDPOINT` - Azure OpenAI embedding endpoint
+- `AZURE_OPENAI_EMBEDDING_DEPLOYMENT` - Embedding deployment name
+- `AZURE_SEARCH_KEY` - Azure Cognitive Search API key
+- `AZURE_SEARCH_SERVICE` - Azure Search service name
+- `AZURE_SEARCH_INDEX` - Azure Search index name
+
+### 3. Run the Application
+
+```bash
+# Development mode (with auto-reload)
+python main.py
+
+# Or using uvicorn directly
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+The API will be available at:
+- **API**: http://localhost:8000
+- **Interactive Docs**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+## 🔧 Usage Examples
+
+### Basic Query
+```bash
+curl -X POST "http://localhost:8000/agents/query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "What are the procurement policies for software purchases?",
+    "conversation_id": "user123",
+    "task_type": "document_query"
+  }'
+```
+
+### Teams Integration
+```bash
+curl -X POST "http://localhost:8000/agents/teams/adaptive-card" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "How do I request a new vendor?",
+    "conversation_id": "teams_user456"
+  }'
+```
+
+### Multi-Step Workflow
+```bash
+curl -X POST "http://localhost:8000/agents/workflow" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "workflow_definition": {
+      "workflow_id": "procurement_analysis",
+      "name": "Comprehensive Procurement Analysis",
+      "description": "Multi-step procurement guidance workflow",
+      "steps": [
+        {
+          "step_id": "policy_lookup",
+          "agent_id": "rag_agent",
+          "task_type": "policy_lookup",
+          "input_data": {"question": "procurement policies"},
+          "depends_on": []
+        }
+      ]
+    }
+  }'
+```
+
+## 🧠 Agent System Details
+
+### RAG Agent Workflow
+The RAG agent uses LangGraph to orchestrate a sophisticated retrieval pipeline:
+
+1. **Query Rewriting**: Optimizes user questions for better retrieval
+2. **Document Retrieval**: Adaptive hybrid search (vector + keyword + semantic)
+3. **Document Grading**: Filters relevant documents
+4. **Document Reranking**: Orders documents by relevance
+5. **Answer Generation**: Creates grounded responses with citations
+6. **Memory Update**: Stores conversation history
+
+### Supervisor Agent
+The supervisor manages task routing and workflow orchestration:
+- Routes single tasks to appropriate agents
+- Executes multi-step workflows with dependency management
+- Handles parallel task execution
+- Provides system-wide monitoring and status
+
+## 🔗 Microsoft Teams Integration
+
+### Adaptive Cards
+The system generates rich Adaptive Cards for Teams with:
+- Formatted answers with citations
+- Source document references
+- Processing metadata
+- Error handling with user-friendly messages
+
+### Bot Framework Integration
+Ready for integration with Microsoft Bot Framework:
+- Teams-specific endpoints
+- Conversation state management
+- Rich card responses
+- Error handling and fallbacks
+
+## 📊 Monitoring and Debugging
+
+### Health Checks
+- `GET /health` - Basic API health
+- `GET /agents/health` - Agent system health
+- `GET /agents/status` - Detailed agent status
+
+### Logging
+The system provides comprehensive logging for:
+- Agent workflow execution
+- Search operations
+- Error tracking
+- Performance monitoring
+
+## 🔒 Security Considerations
+
+- Environment variables for sensitive configuration
+- API key validation
+- CORS configuration for Teams integration
+- Input validation and sanitization
+- Error handling without information leakage
+
+## 🚀 Deployment
+
+### Production Deployment
+```bash
+# Set production environment
+export DEBUG=False
+
+# Run with production WSGI server
+gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker
+```
+
+### Docker Deployment
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+## 📈 Extending the System
+
+### Adding New Agents
+1. Create agent class inheriting from `BaseAgent`
+2. Implement `process()` and `get_capabilities()` methods
+3. Register agent in `SupervisorAgent._register_agents()`
+4. Add routing logic in supervisor
+
+### Custom Workflows
+Define multi-step workflows with:
+- Step dependencies
+- Parallel execution
+- Error handling
+- Result aggregation
+
+## 🤝 Contributing
+
+1. Follow the modular architecture patterns
+2. Add comprehensive type hints
+3. Include error handling and logging
+4. Update tests and documentation
+5. Ensure Teams integration compatibility
+
+## 📝 Migration Notes
+
+This backend was migrated from Jupyter notebook code with the following improvements:
+- Modular architecture with separation of concerns
+- Async/await support for better performance
+- Comprehensive error handling
+- Teams integration capabilities
+- Multi-agent orchestration
+- Persistent conversation memory
+- Production-ready configuration management
