@@ -1,0 +1,34 @@
+# FastAPI specific
+.env
+.env.local
+.env.production
+.env.staging
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+alembic.ini
+migrations/
+
+# Uploads and media
+uploads/
+media/
+static/uploads/
+
+# Cache
+.cache/
+__pycache__/
+
+# Testing
+.pytest_cache/
+test_*.db
+
+# Logs
+*.log
+logs/
+uvicorn.log
+
+# Development
+.vscode/
+.idea/
