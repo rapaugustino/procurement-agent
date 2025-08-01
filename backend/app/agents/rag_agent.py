@@ -342,7 +342,12 @@ class RAGAgent(BaseAgent):
             basic_questions = [
                 "what are the core", "what are the main", "what are the basic",
                 "contact information", "who is the contact", "how to contact",
-                "what is the process", "how does the process work"
+                "who can i contact", "who should i contact", "who do i contact",
+                "contact person", "point of contact", "whom should i contact",
+                "what is the process", "how does the process work", "procurement process",
+                "what is the procurement process", "how does procurement work",
+                "what are the steps", "how do i", "where do i", "when do i",
+                "what are the requirements", "what do i need", "how to"
             ]
             
             if any(basic in question_lower for basic in basic_questions):
@@ -392,9 +397,10 @@ class RAGAgent(BaseAgent):
             CRITICAL INSTRUCTIONS:
             1.  Your entire response **MUST** be based **ONLY** on the "SOURCE DOCUMENTS". Never use outside knowledge.
             2.  You **MUST** add inline citations after each claim, like `[Source Name: filename.pdf]`.
-            3.  If the documents don't answer the question completely, state that clearly.
-            4.  **Enhanced Helpfulness:** When information is incomplete or missing, proactively offer to help draft an email to the procurement contact.
-            5.  **Conclude Naturally:** After the main answer, provide a helpful closing. Use the "GUIDANCE FOR CLOSING" section to inform your closing remarks.
+            3.  **Be CONCISE:** Provide clear, direct answers. Only include detailed explanations when specifically requested.
+            4.  If the documents don't answer the question completely, state that clearly.
+            5.  **Enhanced Helpfulness:** When information is incomplete or missing, proactively offer to help draft an email to the procurement contact.
+            6.  **Conclude Naturally:** After the main answer, provide a helpful closing. Use the "GUIDANCE FOR CLOSING" section to inform your closing remarks.
 
             ---
             CONVERSATION HISTORY:

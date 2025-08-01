@@ -8,9 +8,9 @@ pydantic-settings==2.1.0
 httpx==0.25.2
 aiofiles==23.2.1
 
-# LangChain and LangGraph for RAG agent
+# LangChain and LangGraph for RAG agent (compatible versions)
 langchain==0.1.0
-langchain-core==0.1.0
+langchain-core>=0.1.7,<0.2
 langchain-openai==0.0.5
 langchain-community==0.0.10
 langgraph==0.0.20

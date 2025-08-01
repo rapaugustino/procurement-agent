@@ -221,7 +221,8 @@ async def stream_tool_workflow(request: ToolWorkflowRequest):
                     yield await streaming_service.format_sse_event("step_completed", {
                         "message": f"Step {step.tool_name} completed successfully",
                         "step_id": step.step_id,
-                        "result": result[:200] + "..." if len(result) > 200 else result,  # Truncate long results
+                        "tool_name": step.tool_name,
+                        "result": result,  # Send full result without truncation
                         "status": "completed"
                     })
                     
