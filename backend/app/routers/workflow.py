@@ -26,6 +26,12 @@ class ToolWorkflowRequest(BaseModel):
     conversation_id: str
     initial_message: str
     auto_approve: bool = False  # For testing - normally False for safety
+    
+    # User context for Microsoft Graph API on-behalf-of functionality
+    user_access_token: Optional[str] = None  # User's access token from Teams/AAD auth
+    user_email: Optional[str] = None         # User's email address
+    user_name: Optional[str] = None          # User's display name
+    user_tenant_id: Optional[str] = None     # User's tenant ID
 
 
 class WorkflowStep(BaseModel):
@@ -48,6 +54,12 @@ class WorkflowExecution(BaseModel):
     steps: List[WorkflowStep]
     status: str = "running"  # running, completed, failed, awaiting_approval
     final_result: Optional[str] = None
+    
+    # User context for Microsoft Graph API on-behalf-of functionality
+    user_access_token: Optional[str] = None
+    user_email: Optional[str] = None
+    user_name: Optional[str] = None
+    user_tenant_id: Optional[str] = None
 
 
 # In-memory workflow storage (in production, use database)
@@ -63,13 +75,17 @@ async def execute_tool_workflow(request: ToolWorkflowRequest, background_tasks: 
     workflow_id = str(uuid.uuid4())
     
     try:
-        # Create workflow execution
+        # Create workflow execution with user context
         workflow = WorkflowExecution(
             workflow_id=workflow_id,
             user_id=request.user_id,
             conversation_id=request.conversation_id,
             initial_message=request.initial_message,
-            steps=[]
+            steps=[],
+            user_access_token=request.user_access_token,
+            user_email=request.user_email,
+            user_name=request.user_name,
+            user_tenant_id=request.user_tenant_id
         )
         
         active_workflows[workflow_id] = workflow
@@ -145,15 +161,17 @@ async def stream_tool_workflow(request: ToolWorkflowRequest):
                 } for step in planned_steps]
             })
             
-            # Execute workflow steps with streaming
-            for step_index, step in enumerate(planned_steps):
+            # Execute workflow steps with streaming (dynamic iteration to handle added steps)
+            step_index = 0
+            while step_index < len(workflow.steps):
+                step = workflow.steps[step_index]
                 # Send step started event
                 yield await streaming_service.format_sse_event("step_started", {
                     "message": f"Executing step {step_index + 1}: {step.tool_name}",
                     "step_id": step.step_id,
                     "tool_name": step.tool_name,
                     "step_index": step_index,
-                    "total_steps": len(planned_steps)
+                    "total_steps": len(workflow.steps)
                 })
                 
                 # Check if step requires approval
@@ -207,6 +225,114 @@ async def stream_tool_workflow(request: ToolWorkflowRequest):
                         "status": "completed"
                     })
                     
+                    # Dynamic workflow analysis: Check if RAG response offers email assistance
+                    # Use more intelligent detection that aligns with refined RAG agent logic
+                    def should_trigger_dynamic_email_workflow(result_text: str, original_question: str) -> bool:
+                        """
+                        Determine if the RAG response genuinely offers email assistance
+                        and the question warrants automatic email drafting workflow.
+                        """
+                        if not result_text:
+                            return False
+                            
+                        result_lower = result_text.lower()
+                        question_lower = original_question.lower()
+                        
+                        # Only trigger for explicit email assistance offers
+                        explicit_email_offers = [
+                            "would you like assistance drafting an email",
+                            "i can assist you in drafting an email",
+                            "would you like help drafting an email",
+                            "help you draft an email to richard",
+                            "assist you in drafting an email to"
+                        ]
+                        
+                        has_explicit_offer = any(offer in result_lower for offer in explicit_email_offers)
+                        
+                        if not has_explicit_offer:
+                            return False
+                        
+                        # Don't trigger for basic questions that are well-answered
+                        basic_question_indicators = [
+                            "what are the core", "what are the main", "what are the basic",
+                            "contact information", "who is the contact", "how to contact"
+                        ]
+                        
+                        if any(basic in question_lower for basic in basic_question_indicators):
+                            return False
+                        
+                        # Don't trigger for non-procurement questions
+                        non_procurement_indicators = [
+                            "weather", "time", "date", "location", "address", "phone",
+                            "personal", "health", "medical", "academic", "course", "class"
+                        ]
+                        
+                        if any(indicator in question_lower for indicator in non_procurement_indicators):
+                            return False
+                        
+                        # Only trigger for complex procurement questions
+                        complex_procurement_indicators = [
+                            "specific requirements", "detailed process", "exact amount",
+                            "approval requirements", "documentation needed", "specialized",
+                            "experimental", "research equipment", "international", "over $",
+                            "threshold", "compliance", "regulatory"
+                        ]
+                        
+                        is_complex_question = any(indicator in question_lower for indicator in complex_procurement_indicators)
+                        
+                        # Also check if the response indicates insufficient information or missing details
+                        insufficient_info_indicators = [
+                            "not specified", "not detailed", "not included", "not provided",
+                            "appears insufficient", "more detailed information", "further clarification",
+                            "missing or incomplete information", "do not specify", "are not fully detailed",
+                            "to clarify these requirements", "for authoritative guidance", "comprehensive checklist",
+                            "detailed, step-by-step", "exact approval hierarchy", "special documentation required"
+                        ]
+                        
+                        has_insufficient_info = any(indicator in result_lower for indicator in insufficient_info_indicators)
+                        
+                        # If it's a complex question with explicit email offer, it likely needs email assistance
+                        return is_complex_question and (has_insufficient_info or has_explicit_offer)
+                    
+                    if (step.tool_name == "procurement_rag_agent_tool" and 
+                        should_trigger_dynamic_email_workflow(result, workflow.initial_message)):
+                        
+                        # RAG agent offered email assistance - add email drafting steps dynamically
+                        next_step_num = len(workflow.steps) + 1
+                        
+                        # Add draft step
+                        draft_step = WorkflowStep(
+                            step_id=f"step_{next_step_num}",
+                            tool_name="draft_communication_tool",
+                            tool_args={
+                                "context": "Based on procurement inquiry where information was incomplete",
+                                "recipient": "Richard Pallangyo",
+                                "request": f"Please provide detailed information about: {workflow.initial_message}",
+                                "communication_type": "email"
+                            },
+                            requires_approval=False
+                        )
+                        workflow.steps.append(draft_step)
+                        
+                        # Add send step
+                        send_step = WorkflowStep(
+                            step_id=f"step_{next_step_num + 1}",
+                            tool_name="send_communication_tool",
+                            tool_args={
+                                "draft": "{{previous_step_result}}",
+                                "recipient": "Richard Pallangyo"
+                            },
+                            requires_approval=True
+                        )
+                        workflow.steps.append(send_step)
+                        
+                        # Send dynamic steps added event
+                        yield await streaming_service.format_sse_event("dynamic_steps_added", {
+                            "message": "RAG agent offered email assistance - adding email drafting steps",
+                            "steps_added": 2,
+                            "new_total_steps": len(workflow.steps)
+                        })
+                    
                 except Exception as e:
                     step.status = "failed"
                     yield await streaming_service.format_sse_event("step_failed", {
@@ -215,6 +341,9 @@ async def stream_tool_workflow(request: ToolWorkflowRequest):
                         "error": str(e)
                     })
                     break
+                
+                # Move to next step
+                step_index += 1
             
             # Determine final result
             completed_steps = [s for s in workflow.steps if s.status == "completed"]
@@ -227,7 +356,7 @@ async def stream_tool_workflow(request: ToolWorkflowRequest):
                     "workflow_id": workflow_id,
                     "final_result": workflow.final_result,
                     "steps_completed": len(completed_steps),
-                    "total_steps": len(planned_steps)
+                    "total_steps": len(workflow.steps)
                 })
             else:
                 workflow.status = "failed"
@@ -327,8 +456,8 @@ async def approve_workflow_step(workflow_id: str, approval_data: Dict[str, Any],
 
 async def plan_workflow_steps(initial_message: str) -> List[WorkflowStep]:
     """
-    Plan workflow steps based on the initial message.
-    This mimics the supervisor's decision-making from multiagent_script.py.
+    Analyze the initial message and determine what tools to use.
+    This mimics the supervisor's decision-making logic.
     """
     steps = []
     message_lower = initial_message.lower()
@@ -347,7 +476,7 @@ async def plan_workflow_steps(initial_message: str) -> List[WorkflowStep]:
         step_counter += 1
     
     # If asking to draft or send communication
-    if any(word in message_lower for word in ["draft", "email", "send", "message", "contact"]):
+    elif any(word in message_lower for word in ["draft", "email", "send", "message", "contact"]):
         # First draft the communication
         steps.append(WorkflowStep(
             step_id=f"step_{step_counter}",
@@ -396,8 +525,12 @@ async def execute_workflow_background(workflow_id: str, auto_approve: bool = Fal
         return
     
     try:
-        for step in workflow.steps:
+        # Use dynamic iteration to handle steps added during execution
+        step_index = 0
+        while step_index < len(workflow.steps):
+            step = workflow.steps[step_index]
             if step.status != "pending":
+                step_index += 1
                 continue
             
             # Check if this step requires approval
@@ -418,11 +551,76 @@ async def execute_workflow_background(workflow_id: str, auto_approve: bool = Fal
                 # Stop execution here - will resume when approved
                 break
             
-            # Execute the tool
             try:
+                # Execute the tool step
                 result = await execute_tool_step(step, workflow)
                 step.result = result
                 step.status = "completed"
+                
+                # Dynamic workflow analysis: Check if RAG response offers email assistance
+                email_offer_patterns = [
+                    "help you draft an email",
+                    "assistance drafting an email", 
+                    "would you like assistance",
+                    "draft an email to richard",
+                    "contact richard pallangyo",
+                    "i can assist you in drafting an email",
+                    "help composing such an email",
+                    "would you like help composing",
+                    "assist you in drafting"
+                ]
+                
+                print(f"DEBUG: Checking RAG response for email patterns...")
+                print(f"DEBUG: Tool name: {step.tool_name}")
+                print(f"DEBUG: Result length: {len(result) if result else 0}")
+                if result:
+                    result_lower = result.lower()
+                    for pattern in email_offer_patterns:
+                        if pattern in result_lower:
+                            print(f"DEBUG: Found matching pattern: '{pattern}'")
+                            break
+                    else:
+                        print(f"DEBUG: No matching patterns found")
+                        print(f"DEBUG: First 200 chars of result: {result[:200]}...")
+                
+                if (step.tool_name == "procurement_rag_agent_tool" and 
+                    result and any(pattern in result.lower() for pattern in email_offer_patterns)):
+                    
+                    # RAG agent offered email assistance - add email drafting steps dynamically
+                    print(f"DEBUG: RAG agent offered email assistance! Adding dynamic steps...")
+                    next_step_num = len(workflow.steps) + 1
+                    
+                    # Add draft step
+                    draft_step = WorkflowStep(
+                        step_id=f"step_{next_step_num}",
+                        tool_name="draft_communication_tool",
+                        tool_args={
+                            "context": "Based on procurement inquiry where information was incomplete",
+                            "recipient": "Richard Pallangyo",
+                            "request": f"Please provide detailed information about: {workflow.initial_message}",
+                            "communication_type": "email"
+                        },
+                        requires_approval=False
+                    )
+                    workflow.steps.append(draft_step)
+                    print(f"DEBUG: Added draft step: {draft_step.step_id}")
+                    
+                    # Add send step
+                    send_step = WorkflowStep(
+                        step_id=f"step_{next_step_num + 1}",
+                        tool_name="send_communication_tool",
+                        tool_args={
+                            "draft": "{{previous_step_result}}",
+                            "recipient": "Richard Pallangyo"
+                        },
+                        requires_approval=True
+                    )
+                    workflow.steps.append(send_step)
+                    print(f"DEBUG: Added send step: {send_step.step_id}")
+                    print(f"DEBUG: Total workflow steps now: {len(workflow.steps)}")
+                    
+                    # Update workflow status to continue execution
+                    workflow.status = "running"
                 
             except Exception as e:
                 step.result = f"Error: {str(e)}"
@@ -430,6 +628,9 @@ async def execute_workflow_background(workflow_id: str, auto_approve: bool = Fal
                 workflow.status = "failed"
                 workflow.final_result = f"Workflow failed at step {step.step_id}: {str(e)}"
                 break
+            
+            # Move to next step
+            step_index += 1
         
         # Check if workflow is complete
         if all(s.status in ["completed", "failed"] for s in workflow.steps):
@@ -488,12 +689,30 @@ async def execute_tool_step(step: WorkflowStep, workflow: WorkflowExecution) -> 
         return result.data.get("draft", "") if result.success else f"Error: {result.error}"
     
     elif tool_name == "send_communication_tool":
+        # Pass user context for Microsoft Graph API on-behalf-of functionality
         result = await tool_manager.send_communication_tool(
             draft=tool_args.get("draft", ""),
             recipient=tool_args.get("recipient", ""),
-            approved=True  # Already approved if we reach here
+            approved=True,  # Already approved if we reach here
+            user_access_token=getattr(workflow, 'user_access_token', None),
+            user_email=getattr(workflow, 'user_email', None),
+            user_name=getattr(workflow, 'user_name', None)
         )
-        return result.message if result.success else f"Error: {result.error}"
+        
+        # Return detailed confirmation or error message
+        if result.success:
+            # Extract user feedback for confirmation
+            user_feedback = result.data.get("user_feedback", result.message)
+            confirmation = result.data.get("confirmation", {})
+            
+            if confirmation:
+                return f"✅ Email Sent Successfully!\n\n{user_feedback}\n\nDelivery Status: {confirmation.get('delivery_status', 'Processed')}"
+            else:
+                return user_feedback
+        else:
+            # Extract detailed error feedback
+            user_feedback = result.data.get("user_feedback", f"Error: {result.error}")
+            return f"❌ Email Send Failed\n\n{user_feedback}"
     
     else:
         raise Exception(f"Unknown tool: {tool_name}")

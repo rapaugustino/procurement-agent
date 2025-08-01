@@ -41,6 +41,15 @@ class Settings(BaseSettings):
     teams_app_id: Optional[str] = None
     teams_app_password: Optional[str] = None
     
+    # Microsoft Graph API Configuration (for on-behalf-of email sending)
+    graph_api_scope: str = "https://graph.microsoft.com/.default"
+    graph_api_base_url: str = "https://graph.microsoft.com/v1.0"
+    
+    # Required scopes for email sending on behalf of users:
+    # - Mail.Send (to send emails on behalf of the user)
+    # - User.Read (to get user profile information)
+    # These should be configured in your Azure AD app registration
+    
     # Legacy property mappings for backward compatibility
     @property
     def azure_openai_chat_key(self) -> Optional[str]:

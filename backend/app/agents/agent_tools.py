@@ -105,33 +105,25 @@ class AgentToolManager:
             )
     
     async def send_communication_tool(self, draft: str, recipient: str, 
-                                    approved: bool = False) -> ToolResult:
+                                    approved: bool = False, user_access_token: str = None,
+                                    user_email: str = None, user_name: str = None) -> ToolResult:
         """
         Tool interface for sending communications.
         REQUIRES HUMAN APPROVAL - this is a critical action.
         """
         try:
             # This tool ALWAYS requires approval
-            if not approved:
-                return ToolResult(
-                    success=False,
-                    data={
-                        "draft": draft,
-                        "recipient": recipient,
-                        "action": "send_communication"
-                    },
-                    message="Human approval required before sending communication",
-                    requires_approval=True
-                )
-            
             state = AgentState(
                 agent_id="communication_agent",
-                task_id="send_tool",
+                task_id="send_communication",
                 data={
                     "action": "send",
                     "draft": draft,
                     "recipient": recipient,
-                    "approved": True
+                    "approved": approved,
+                    "user_access_token": user_access_token,
+                    "user_email": user_email,
+                    "user_name": user_name
                 }
             )
             
@@ -141,20 +133,21 @@ class AgentToolManager:
                 return ToolResult(
                     success=True,
                     data=response.data,
-                    message=f"Communication sent successfully to {recipient}"
+                    message=response.message
                 )
             else:
                 return ToolResult(
                     success=False,
                     error=response.error,
-                    message="Failed to send communication"
+                    message=response.message,
+                    requires_approval=not approved
                 )
                 
         except Exception as e:
             return ToolResult(
                 success=False,
                 error=str(e),
-                message="Error executing send communication tool"
+                message=f"Error in send communication tool: {str(e)}"
             )
 
 
@@ -203,19 +196,31 @@ async def draft_communication_tool(context: str, recipient: str, request: str,
 
 
 @tool
-async def send_communication_tool(draft: str, recipient: str = "") -> str:
+async def send_communication_tool(draft: str, recipient: str = "", 
+                                 user_access_token: str = None, user_email: str = None, 
+                                 user_name: str = None) -> str:
     """
     Use this tool ONLY AFTER a draft has been created AND the human user has given their
-    explicit approval to send it. This simulates sending the communication.
+    explicit approval to send it. Sends the communication on behalf of the user.
     
     CRITICAL: This tool requires human approval and will be interrupted for review.
     
     Args:
         draft: The complete draft message to send
         recipient: The recipient of the message (optional if included in draft)
+        user_access_token: User's access token for Graph API (optional)
+        user_email: User's email address (optional)
+        user_name: User's display name (optional)
     """
     # This tool always requires approval - the supervisor will handle the interrupt
-    result = await tool_manager.send_communication_tool(draft, recipient, approved=False)
+    result = await tool_manager.send_communication_tool(
+        draft=draft, 
+        recipient=recipient, 
+        approved=False,
+        user_access_token=user_access_token,
+        user_email=user_email,
+        user_name=user_name
+    )
     
     if result.requires_approval:
         return f"APPROVAL_REQUIRED: {result.message}"

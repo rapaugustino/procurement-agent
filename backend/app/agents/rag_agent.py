@@ -312,7 +312,7 @@ class RAGAgent(BaseAgent):
             for d in documents
         ])
 
-        # Extract contact information
+        # Extract contact information and detect incomplete answers
         contacts = []
         contact_pattern = re.compile(r"Name:\s*(.*?)\s*Email:\s*(\S+@\S+)")
         for doc in documents:
@@ -322,9 +322,68 @@ class RAGAgent(BaseAgent):
                 if contact_str not in contacts:
                     contacts.append(contact_str)
 
+        # Always include Richard Pallangyo as the primary contact
+        primary_contact = "Richard Pallangyo (rapaugustino@gmail.com)"
+        if primary_contact not in contacts:
+            contacts.insert(0, primary_contact)
+
+        # Intelligent detection of when email assistance is genuinely needed
+        def should_offer_email_assistance(question: str, documents: List[Document]) -> bool:
+            """
+            Determine if email assistance should be offered based on:
+            1. Question complexity and specificity
+            2. Document coverage of the topic
+            3. Procurement relevance
+            """
+            question_lower = question.lower()
+            doc_text = " ".join([doc.page_content.lower() for doc in documents])
+            
+            # Don't offer email for basic/general questions that are well-covered
+            basic_questions = [
+                "what are the core", "what are the main", "what are the basic",
+                "contact information", "who is the contact", "how to contact",
+                "what is the process", "how does the process work"
+            ]
+            
+            if any(basic in question_lower for basic in basic_questions):
+                return False
+            
+            # Don't offer email for non-procurement questions
+            non_procurement_indicators = [
+                "weather", "time", "date", "location", "address", "phone",
+                "personal", "health", "medical", "academic", "course", "class"
+            ]
+            
+            if any(indicator in question_lower for indicator in non_procurement_indicators):
+                return False
+            
+            # Only offer email for complex, specific procurement questions with insufficient info
+            complex_procurement_indicators = [
+                "specific requirements for", "detailed process for", "exact amount",
+                "approval requirements", "documentation needed", "specialized",
+                "experimental", "research equipment", "international", "over $",
+                "threshold", "compliance", "regulatory"
+            ]
+            
+            is_complex_question = any(indicator in question_lower for indicator in complex_procurement_indicators)
+            
+            # Check if documents provide insufficient detail for complex questions
+            insufficient_detail_indicators = [
+                "not specified", "not detailed", "not included", "not provided",
+                "contact for more", "further information", "additional details",
+                "more specific", "exact requirements", "detailed guidance"
+            ]
+            
+            has_insufficient_detail = any(indicator in doc_text for indicator in insufficient_detail_indicators)
+            
+            # Only offer email for complex procurement questions with insufficient detail
+            return is_complex_question and has_insufficient_detail
+        
+        should_offer_email = should_offer_email_assistance(question, documents)
+        
         contact_info_for_prompt = (
-            "Specific contact(s) found: " + ", ".join(contacts) 
-            if contacts else "No specific contact information was found in the documents."
+            f"Contact information available: {', '.join(contacts)}. "
+            f"{'The available information appears insufficient for this specific inquiry - consider offering to help draft an email to the contact for more detailed information.' if should_offer_email else 'Use this contact information appropriately in your response.'}"
         )
 
         prompt = PromptTemplate(
@@ -333,8 +392,9 @@ class RAGAgent(BaseAgent):
             CRITICAL INSTRUCTIONS:
             1.  Your entire response **MUST** be based **ONLY** on the "SOURCE DOCUMENTS". Never use outside knowledge.
             2.  You **MUST** add inline citations after each claim, like `[Source Name: filename.pdf]`.
-            3.  If the documents don't answer the question, state that clearly.
-            4.  **Conclude Naturally:** After the main answer, provide a helpful closing. Use the "GUIDANCE FOR CLOSING" section to inform your closing remarks. Do not be repetitive; vary your language to sound human.
+            3.  If the documents don't answer the question completely, state that clearly.
+            4.  **Enhanced Helpfulness:** When information is incomplete or missing, proactively offer to help draft an email to the procurement contact.
+            5.  **Conclude Naturally:** After the main answer, provide a helpful closing. Use the "GUIDANCE FOR CLOSING" section to inform your closing remarks.
 
             ---
             CONVERSATION HISTORY:
@@ -349,7 +409,7 @@ class RAGAgent(BaseAgent):
 
             USER'S QUESTION: "{question}"
 
-            YOUR PROFESSIONAL RESPONSE (with citations and a natural closing):
+            YOUR PROFESSIONAL RESPONSE (with citations and enhanced assistance):
             """,
             input_variables=["question", "context", "history", "contact_info"],
         )
@@ -367,22 +427,65 @@ class RAGAgent(BaseAgent):
     def _handle_no_docs(self, state: RAGGraphState) -> dict:
         """Handle case when no relevant documents found"""
         question = state["original_question"]
-
-        fallback_prompt = PromptTemplate(
-            template="""You are a helpful procurement assistant. A search was performed for a user's question, but no directly relevant documents were found.
+        
+        # Use the same intelligent logic to determine if email assistance should be offered
+        def should_offer_email_for_no_docs(question: str) -> bool:
+            question_lower = question.lower()
             
-            Your task is to inform the user of this limitation in a professional and helpful way. DO NOT invent an answer.
+            # Don't offer email for non-procurement questions
+            non_procurement_indicators = [
+                "weather", "time", "date", "location", "address", "phone",
+                "personal", "health", "medical", "academic", "course", "class"
+            ]
             
-            USER'S QUESTION: "{question}"
+            if any(indicator in question_lower for indicator in non_procurement_indicators):
+                return False
             
-            Compose a brief response that:
-            1.  Acknowledges their question.
-            2.  States that you were unable to find specific information in the available documents.
-            3.  Suggests a general next step, such as contacting the procurement department directly for the most accurate guidance.
+            # Only offer email for procurement-related questions
+            procurement_indicators = [
+                "procurement", "purchase", "buy", "vendor", "supplier", "contract",
+                "requisition", "order", "approval", "policy", "process", "requirement"
+            ]
             
-            Response:""",
-            input_variables=["question"],
-        )
+            return any(indicator in question_lower for indicator in procurement_indicators)
+        
+        should_offer_email = should_offer_email_for_no_docs(question)
+        
+        if should_offer_email:
+            fallback_prompt = PromptTemplate(
+                template="""You are a helpful procurement assistant. A search was performed for a user's question, but no directly relevant documents were found.
+                
+                Your task is to inform the user of this limitation in a professional and helpful way, while being proactively helpful. DO NOT invent an answer.
+                
+                USER'S QUESTION: "{question}"
+                
+                Compose a response that:
+                1.  Acknowledges their question professionally.
+                2.  States that you were unable to find specific information in the available documents.
+                3.  Mentions that Richard Pallangyo (rapaugustino@gmail.com) is the procurement contact who can help.
+                4.  **PROACTIVELY OFFER**: Ask if they would like you to help draft an email to Richard about their question.
+                5.  Explain that you can help create a professional email if they're interested.
+                
+                Response:""",
+                input_variables=["question"],
+            )
+        else:
+            fallback_prompt = PromptTemplate(
+                template="""You are a helpful procurement assistant. A search was performed for a user's question, but no directly relevant documents were found.
+                
+                Your task is to inform the user of this limitation in a professional and helpful way. DO NOT invent an answer.
+                
+                USER'S QUESTION: "{question}"
+                
+                Compose a response that:
+                1.  Acknowledges their question professionally.
+                2.  States that you were unable to find specific information in the available documents.
+                3.  Mentions that Richard Pallangyo (rapaugustino@gmail.com) is the procurement contact who can help with procurement-related questions.
+                4.  Suggests they contact Richard directly if this is procurement-related.
+                
+                Response:""",
+                input_variables=["question"],
+            )
         
         fallback_chain = fallback_prompt | self.llm | StrOutputParser()
         generation = fallback_chain.invoke({"question": question})

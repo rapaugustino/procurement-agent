@@ -78,10 +78,10 @@ async def query_agent(request: QueryRequest):
         
         return QueryResponse(
             task_id=task_id,
-            success=True,
-            answer=response.content,
-            sources=response.sources,
-            agent_used=response.agent_used,
+            success=response.success,
+            answer=response.data.get("answer", response.message) if response.success else response.message,
+            sources=response.data.get("sources", []),
+            agent_used=response.data.get("target_agent", response.agent_id),
             processing_time=processing_time,
             conversation_id=request.conversation_id
         )

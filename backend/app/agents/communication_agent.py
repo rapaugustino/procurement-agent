@@ -6,9 +6,13 @@ Supports email drafting, Teams messages, and other communications.
 from typing import Dict, Any, List, Optional
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+import logging
 
 from .base_agent import BaseAgent, AgentState, AgentResponse
 from ..config import settings
+from ..services.graph_api_service import graph_service
+
+logger = logging.getLogger(__name__)
 
 
 class CommunicationAgent(BaseAgent):
@@ -130,40 +134,134 @@ class CommunicationAgent(BaseAgent):
             )
     
     async def _send_communication(self, state: AgentState) -> AgentResponse:
-        """Send a communication (simulated - requires HITL approval)"""
-        draft = state.data.get("draft", "")
-        recipient = state.data.get("recipient", "")
-        approved = state.data.get("approved", False)
+        """Send the drafted communication using Microsoft Graph API on-behalf-of user"""
+        data = state.data
+        draft = data.get("draft", "")
+        recipient = data.get("recipient", "")
+        approved = data.get("approved", False)
         
-        if not draft:
-            return self.create_response(
-                state.task_id, False,
-                error="No draft provided for sending"
-            )
-        
+        # Critical: Only proceed if explicitly approved
         if not approved:
             return self.create_response(
-                state.task_id, False,
-                error="Communication not approved for sending"
+                state.task_id, False, {},
+                "Communication sending requires explicit human approval"
             )
         
-        # Simulate sending (in production, this would integrate with MS Graph API)
-        print(f"\n---COMMUNICATION AGENT: SENDING MESSAGE---")
+        if not draft or not recipient:
+            return self.create_response(
+                state.task_id, False, {},
+                "Missing draft content or recipient information"
+            )
+        
+        # Extract user context (required for on-behalf-of sending)
+        user_access_token = data.get("user_access_token")
+        user_email = data.get("user_email")
+        user_name = data.get("user_name")
+        
+        if not all([user_access_token, user_email, user_name]):
+            logger.warning("Missing user context for on-behalf-of email sending")
+            # Fallback to simulation for development/testing
+            return await self._simulate_email_sending(draft, recipient, state.task_id)
+        
+        try:
+            # Parse email content (assuming format: Subject: ... \n\n Body...)
+            lines = draft.split('\n')
+            subject = "Procurement Inquiry"
+            body = draft
+            
+            # Extract subject if present
+            if lines and lines[0].startswith("Subject:"):
+                subject = lines[0].replace("Subject:", "").strip()
+                body = '\n'.join(lines[2:])  # Skip subject and empty line
+            
+            # Send email using Microsoft Graph API
+            result = await graph_service.send_email_on_behalf(
+                user_access_token=user_access_token,
+                user_email=user_email,
+                user_name=user_name,
+                recipient_email=recipient,
+                subject=subject,
+                body=body,
+                body_type="HTML"
+            )
+            
+            if result.get("success"):
+                logger.info(f"✅ Email sent successfully from {user_email} to {recipient}")
+                
+                # Extract detailed confirmation from Graph API response
+                confirmation = result.get("confirmation", {})
+                user_feedback = result.get("user_feedback", f"Email sent successfully to {recipient}")
+                
+                response_data = {
+                    "sent": True,
+                    "status": "sent",
+                    "recipient": recipient,
+                    "subject": subject,
+                    "from": user_email,
+                    "method": "microsoft_graph_api",
+                    "confirmation": confirmation,
+                    "user_feedback": user_feedback,
+                    "detailed_confirmation": {
+                        "delivery_method": "Microsoft Outlook via Graph API",
+                        "sent_timestamp": confirmation.get("sent_at_readable", "Just now"),
+                        "delivery_status": confirmation.get("delivery_status", "Queued for delivery"),
+                        "api_status_code": confirmation.get("status_code", 202)
+                    }
+                }
+                
+                # Create user-friendly success message
+                success_message = f"✅ **Email Confirmation**\n\n{user_feedback}\n\n**Details:**\n- From: {user_email}\n- To: {recipient}\n- Subject: {subject}\n- Sent: {confirmation.get('sent_at_readable', 'Just now')}\n- Status: {confirmation.get('delivery_status', 'Queued for delivery')}"
+                
+                return self.create_response(
+                    state.task_id, True, response_data,
+                    success_message
+                )
+            else:
+                logger.error(f"❌ Failed to send email: {result.get('error')}")
+                
+                # Extract detailed error information
+                error_details = result.get("error_details", {})
+                user_feedback = result.get("user_feedback", f"Failed to send email to {recipient}")
+                
+                # Create user-friendly error message
+                error_message = f"❌ **Email Send Failed**\n\n{user_feedback}\n\n**Technical Details:**\n- Status Code: {error_details.get('status_code', 'Unknown')}\n- Error: {error_details.get('error_message', 'Unknown error')}\n- Attempted From: {error_details.get('attempted_from', user_email)}\n- Attempted To: {error_details.get('attempted_to', recipient)}"
+                
+                return self.create_response(
+                    state.task_id, False, {
+                        "sent": False,
+                        "status": "failed",
+                        "error_details": error_details,
+                        "user_feedback": user_feedback
+                    },
+                    error_message
+                )
+                
+        except Exception as e:
+            logger.error(f"Exception in email sending: {str(e)}")
+            return self.create_response(
+                state.task_id, False, {"error": str(e)},
+                f"Exception occurred while sending email: {str(e)}"
+            )
+    
+    async def _simulate_email_sending(self, draft: str, recipient: str, task_id: str) -> AgentResponse:
+        """Fallback simulation for development/testing when user context is missing"""
+        logger.info("Simulating email sending (missing user context for Graph API)")
+        print(f"\n---COMMUNICATION AGENT: SIMULATING EMAIL SEND---")
         print(f"To: {recipient}")
         print(f"Message:\n{draft}")
-        print("---MESSAGE SENT (SIMULATED)---\n")
+        print("---EMAIL SIMULATED (Missing user context for Graph API)---\n")
         
         response_data = {
             "sent": True,
             "recipient": recipient,
             "draft": draft,
-            "timestamp": "simulated_timestamp",
-            "message": "Message sent successfully (simulated)"
+            "method": "simulation",
+            "note": "Simulated - missing user context for Graph API"
         }
         
         return self.create_response(
-            state.task_id, True, response_data,
-            f"Message sent successfully to {recipient}"
+            task_id, True, response_data,
+            f"Email simulated to {recipient} (missing user context for Graph API)"
         )
     
     def _get_email_template(self) -> str:
