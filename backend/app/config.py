@@ -2,6 +2,11 @@ from pydantic_settings import BaseSettings
 from typing import Optional
 
 class Settings(BaseSettings):
+    model_config = {
+        "extra": "ignore",  # Ignore extra environment variables
+        "env_file": ".env",
+        "case_sensitive": False
+    }
     app_name: str = "Procurement Agent API"
     debug: bool = False
     host: str = "0.0.0.0"
@@ -14,10 +19,7 @@ class Settings(BaseSettings):
     # Database settings (add when needed)
     database_url: Optional[str] = None
     
-    # Azure Active Directory Configuration
-    azure_client_id: Optional[str] = None
-    azure_tenant_id: Optional[str] = None
-    azure_client_secret: Optional[str] = None
+    # Azure Active Directory Configuration (removed - no longer needed for RAG-only functionality)
     
     # OpenAI Configuration
     openai_api_key: Optional[str] = None
@@ -41,13 +43,9 @@ class Settings(BaseSettings):
     teams_app_id: Optional[str] = None
     teams_app_password: Optional[str] = None
     
-    # Microsoft Graph API Configuration (for on-behalf-of email sending)
-    graph_api_scope: str = "https://graph.microsoft.com/.default"
-    graph_api_base_url: str = "https://graph.microsoft.com/v1.0"
-    
-    # Required scopes for email sending on behalf of users:
-    # - Mail.Send (to send emails on behalf of the user)
-    # - User.Read (to get user profile information)
+    # Microsoft Graph API Configuration (removed - no longer needed)
+    # graph_api_scope: str = "https://graph.microsoft.com/.default"
+    # graph_api_base_url: str = "https://graph.microsoft.com/v1.0"
     # These should be configured in your Azure AD app registration
     
     # Legacy property mappings for backward compatibility
@@ -89,8 +87,6 @@ class Settings(BaseSettings):
     def azure_search_index(self) -> Optional[str]:
         return self.azure_search_index_name
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    # Configuration moved to model_config above
 
 settings = Settings()

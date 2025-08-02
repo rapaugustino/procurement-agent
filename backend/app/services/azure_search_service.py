@@ -4,6 +4,7 @@ Migrated from notebook code with improved modularity.
 """
 
 import requests
+import json
 from typing import List
 from langchain_core.documents import Document
 

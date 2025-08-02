@@ -15,7 +15,7 @@ langchain-openai==0.0.5
 langchain-community==0.0.10
 langgraph==0.0.20
 
-# Azure integrations
+# Azure integrations (for search only)
 azure-search-documents==11.4.0
 azure-identity==1.15.0
 requests==2.31.0

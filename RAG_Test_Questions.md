@@ -204,116 +204,64 @@ This document contains comprehensive test questions to validate the RAG system's
 ## Expected Behavior for Unknown Information
 
 When asked about information not in the knowledge base, the system should:
-- Acknowledge the limitation
-- Suggest contacting Richard Pallangyo at rapaugustino@gmail.com
-- Provide related information that IS available
-- Not make up specific details, numbers, or processes
+- **Acknowledge the limitation professionally** with specific reference to what was asked
+- **Offer to draft an email** to the appropriate contact for assistance
+- **Suggest Richard Pallangyo** as the default contact when no specific contacts are found
+- **Provide related information** that IS available from the knowledge base
+- **Use professional, helpful language** that feels conversational and human-like
+- **Not make up** specific details, numbers, or processes
 
+## Enhanced Email-Offer Functionality
 
-## Curl Command
+The RAG agent now includes sophisticated email assistance when information is missing:
 
-Here are the curl commands for each test case, ready to copy and run.
-You can easily swap the conversation_id if you want to track categories separately (e.g., test_methods, test_requisitions).
-Default conversation_id: I use a logical value like test_01_core, test_02_methods, etc., for clarity, but you can change these as needed.
+### Test Case: Specialized/Technical Queries
+**Question**: "What are the specific customs duties for importing a high-energy particle accelerator from Switzerland?"
 
-⸻
+**Expected Response Pattern**:
+```
+🔍 **Procurement Information Search**
 
-Category 1: Core Procurement Principles
+I searched our UW procurement knowledge base for information about customs duties for importing high-energy particle accelerators from Switzerland, but I couldn't find specific details about this specialized equipment.
 
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What are the four key principles of UW procurement policy?", "conversation_id": "test_01_core"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What is the primary goal of UW's procurement policy?", "conversation_id": "test_01_core"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What happens if employees don’t follow procurement guidelines?", "conversation_id": "test_01_core"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "How does UW define \"Best Value\" in procurement decisions?", "conversation_id": "test_01_core"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What does \"Competition\" mean in UW procurement context?", "conversation_id": "test_01_core"}'
+📧 **How I Can Help**
+For complex international procurement questions like this, I recommend contacting:
 
+**Richard Pallangyo**  
+UW Procurement Office  
+Email: rapaugustino@gmail.com
 
-⸻
+Would you like me to help draft an email to Richard requesting information about:
+- Customs duties for scientific equipment from Switzerland
+- Import procedures for high-energy particle accelerators
+- Any special documentation requirements
 
-Category 2: Procurement Methods
+✅ **What I Can Tell You**
+From our procurement policies, I know that international purchases require special consideration for compliance and documentation. [Citation needed if available]
+```
 
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What are the three common procurement methods at UW?", "conversation_id": "test_02_methods"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "When is Sole Source procurement permitted?", "conversation_id": "test_02_methods"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What procurement methods are used for larger purchases?", "conversation_id": "test_02_methods"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What characterizes Small Purchases at UW?", "conversation_id": "test_02_methods"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What formal processes are required for competitive procurement?", "conversation_id": "test_02_methods"}'
+### Response Quality Standards
+- **Specific**: References the exact item asked about (particle accelerator)
+- **Visual**: Uses emojis and formatting for better readability
+- **Actionable**: Offers concrete next steps (email drafting)
+- **Professional**: Maintains UW procurement context
+- **Helpful**: Provides related information when available
 
+### Test Commands for Enhanced Functionality
 
-⸻
+```bash
+# Test specialized equipment query
+curl -X POST "http://localhost:8000/agents/query/stream" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What are the specific customs duties for importing a high-energy particle accelerator from Switzerland?", "conversation_id": "test_email_offer_1"}'
 
-Category 3: Purchase Requisition Process
+# Test another specialized query
+curl -X POST "http://localhost:8000/agents/query/stream" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What are the procurement requirements for importing medical isotopes from Canada?", "conversation_id": "test_email_offer_2"}'
 
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What is the primary system used for purchase requisitions at UW?", "conversation_id": "test_03_requisitions"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "How do you access the UW procurement system?", "conversation_id": "test_03_requisitions"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What are the main steps to create a purchase requisition?", "conversation_id": "test_03_requisitions"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What information is required when creating a purchase requisition?", "conversation_id": "test_03_requisitions"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What documents should be attached to a requisition?", "conversation_id": "test_03_requisitions"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What happens after a requisition is fully approved?", "conversation_id": "test_03_requisitions"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "How are requisitions routed for approval?", "conversation_id": "test_03_requisitions"}'
-
-
-⸻
-
-Category 4: Preferred Vendors and Contracts
-
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What are the benefits of using UW preferred vendors?", "conversation_id": "test_04_vendors"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "How can departments find preferred vendors?", "conversation_id": "test_04_vendors"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What should departments do if needed items aren’t available through preferred vendors?", "conversation_id": "test_04_vendors"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "Why does UW encourage using preferred vendors?", "conversation_id": "test_04_vendors"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "How are preferred vendors vetted?", "conversation_id": "test_04_vendors"}'
-
-
-⸻
-
-Category 5: Receiving and Invoice Processing
-
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What must be done when goods or services are delivered?", "conversation_id": "test_05_receiving"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What should be verified upon delivery?", "conversation_id": "test_05_receiving"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "How are partial deliveries handled?", "conversation_id": "test_05_receiving"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "Where do suppliers submit invoices?", "conversation_id": "test_05_receiving"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What is the \"Three-Way Match\" process?", "conversation_id": "test_05_receiving"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What happens when there are discrepancies in the three-way match?", "conversation_id": "test_05_receiving"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "How are non-PO invoices processed?", "conversation_id": "test_05_receiving"}'
-
-
-⸻
-
-Category 6: Contact Information
-
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "Who should be contacted for procurement questions?", "conversation_id": "test_06_contact"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What types of questions can be directed to the procurement contact?", "conversation_id": "test_06_contact"}'
-
-
-⸻
-
-Category 7: Edge Cases and Hallucination Tests
-
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What is the procurement threshold for small purchases at UW?", "conversation_id": "test_07_edge"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What are the specific dollar amounts for different approval levels?", "conversation_id": "test_07_edge"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "Can you provide the phone number for procurement services?", "conversation_id": "test_07_edge"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What are the procurement policies for international purchases?", "conversation_id": "test_07_edge"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "How long does the approval process typically take?", "conversation_id": "test_07_edge"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What are the penalties for non-compliance with procurement policies?", "conversation_id": "test_07_edge"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "Can departments bypass preferred vendors for better pricing?", "conversation_id": "test_07_edge"}'
-
-
-⸻
-
-Category 8: System Integration Questions
-
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "How does Ariba integrate with other UW systems?", "conversation_id": "test_08_integration"}'
-curl -X POST "http://localhost:8000/agents/query" -H "Content-Type: application/json" -d '{"question": "What happens if the Ariba system is unavailable?", "conversation_id": "test_08_integration"}'
-
-
-⸻
-
-Pro Tips
-	•	You can batch these in a shell script for repeat testing.
-	•	For streaming responses, just add /stream to the URL in each command:
-
-curl -X POST "http://localhost:8000/agents/query/stream" ...
-
-
-	•	Change conversation_id as you wish to group/trace the tests.
-	•	For JSON output readability, add | jq at the end (if jq is installed).
-
-If you need a ready-to-run bash script for all tests, let me know!
+# Test policy question that should have an answer
+curl -X POST "http://localhost:8000/agents/query/stream" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What are the four key principles of UW procurement policy?", "conversation_id": "test_known_info"}'
+```

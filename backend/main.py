@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.config import settings
-from app.routers import agents, hitl, workflow
+from app.routers import agents
 
 
 @asynccontextmanager
@@ -39,9 +39,7 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(agents.router)
-app.include_router(hitl.router)
-app.include_router(workflow.router)
+app.include_router(agents.router, prefix="/agents", tags=["agents"])
 
 
 @app.get("/")

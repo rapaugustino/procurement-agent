@@ -2,25 +2,108 @@
   "default": {
     "history": [
       {
-        "question": "I need vendor information for specialized laboratory equipment",
-        "answer": "For vendor information regarding specialized laboratory equipment at the University of Washington, you are encouraged to utilize the University's preferred vendors and contracts. The University has established numerous contracts with vetted suppliers, which streamlines the purchasing process, often provides discounted pricing, and ensures compliance with procurement requirements. Many preferred vendors have catalogs integrated directly into the Ariba system, allowing for easy browsing and ordering. Additionally, a comprehensive Preferred Vendor List is available on the Procurement Services website, categorized by goods or service type. You can also search for specific contracts or commodities on the Procurement Services website to find vendors that supply specialized laboratory equipment [PreferredVendorsandContracts.html].\n\nIf you are unable to find the specialized laboratory equipment you need through a preferred vendor, standard competitive procurement procedures must be followed, as outlined in the University's procurement policy [UW Procurement Policy Overview.md].\n\nIf you require further assistance or cannot locate the specific vendor information you need, I can help you draft an email to the procurement contact, Richard Pallangyo (rapaugustino@gmail.com), who can provide more detailed guidance or direct you to the appropriate resources.\n\nPlease let me know if you would like assistance with drafting an email or need further support in your search.\n\nIf you have additional questions or need personalized assistance, you may also contact Richard Pallangyo directly at rapaugustino@gmail.com."
+        "question": "What are the procurement policies for laboratory equipment?",
+        "answer": "I did not find specific procurement policies for laboratory equipment in the available documents. However, I found contact information: Richard Pallangyo (rapaugustino@gmail.com). Would you like me to draft an email to request this information?\n\n**\ud83d\udcda Sources:**\n[1] PreferredVendorsandContracts.html\n[2] UW Procurement Policy Overview.md\n[3] Purchase Requisition and Order Process.docx\n[4] Receiving and Invoice Processing.pdf"
       },
       {
-        "question": "no",
-        "answer": "It appears your message was \"no.\" If you are indicating that you do not need vendor information for specialized laboratory equipment, or if you have a different question or request, please clarify so I can assist you more effectively.\n\nIf you still require information about vendors or procurement processes at the University of Washington, please let me know your specific needs. If your question is unrelated to procurement, feel free to provide more details so I can offer the most relevant support.\n\nIf you need further assistance or wish to contact someone directly, Richard Pallangyo (rapaugustino@gmail.com) is available for procurement-related questions [Receiving and Invoice Processing.pdf].\n\nPlease let me know how you would like to proceed!"
+        "question": "What are the procurement policies for laboratory equipment?",
+        "answer": "I did not find specific procurement policies for laboratory equipment in the available documents. However, I found contact information: Richard Pallangyo (rapaugustino@gmail.com). Would you like me to draft an email to request this information?\n\n**\ud83d\udcda Sources:**\n[1] PreferredVendorsandContracts.html\n[2] UW Procurement Policy Overview.md\n[3] Purchase Requisition and Order Process.docx\n[4] Receiving and Invoice Processing.pdf"
       },
       {
-        "question": "Who can I contact for procurement questions?",
-        "answer": "For procurement questions at the University of Washington, you can contact Richard Pallangyo at rapaugustino@gmail.com. He is listed as the primary contact for procurement policies, specific processes, or if you cannot find the information you need in the available documentation [Receiving and Invoice Processing.pdf].\n\nIf you need assistance drafting an email to Richard Pallangyo or have a specific procurement scenario you'd like to discuss, please let me know\u2014I'm happy to help you prepare your inquiry.\n\nIf you have any further questions or need additional support, please feel free to reach out."
+        "question": "Where is Tanzania?",
+        "answer": "I did not find the location of Tanzania in the available documents. However, I found contact information: Richard Pallangyo (rapaugustino@gmail.com). Would you like me to draft an email to request this information?\n\n**\ud83d\udcda Sources:**\n[1] Receiving and Invoice Processing.pdf\n[2] Purchase Requisition and Order Process.docx\n[3] PreferredVendorsandContracts.html\n[4] UW Procurement Policy Overview.md"
       },
       {
-        "question": "What is the procurement process at UW?",
-        "answer": "The procurement process at the University of Washington (UW) is designed to ensure fair competition, compliance with regulations, and the acquisition of goods and services at the best value. Here is an overview of the standard procurement process:\n\n1. Initiating a Purchase:\n   - The primary method for starting a purchase is by creating a Purchase Requisition in the Ariba system. You must log in with your UW NetID, fill in all required fields (supplier, item details, quantity, price, budget codes), and attach any necessary supporting documents (such as quotes or sole source justifications) [Purchase Requisition and Order Process.docx].\n\n2. Approval Routing:\n   - The requisition is automatically routed through departmental and central approvals based on the value and nature of the purchase [Purchase Requisition and Order Process.docx].\n\n3. Purchase Order Generation:\n   - Once fully approved, a Purchase Order (PO) is generated in Ariba and sent to the supplier [Purchase Requisition and Order Process.docx].\n\n4. Receiving Goods/Services:\n   - Upon delivery, the department must verify that the goods or services match the PO and formally record the receipt in Ariba. This step is essential for confirming acceptance and enabling payment [Receiving and Invoice Processing.pdf].\n\n5. Invoice Processing and Payment:\n   - Suppliers send invoices to Accounts Payable, which matches the invoice to the PO and the recorded receipt in Ariba. Payment is made only when all three match (the \"three-way match\" process). Discrepancies must be resolved before payment proceeds [Receiving and Invoice Processing.pdf].\n\n6. Preferred Vendors:\n   - UW strongly encourages the use of preferred vendors, which streamlines the process, ensures compliance, and often provides discounted pricing. Preferred vendors can be found via Ariba catalogs or the Procurement Services website. If a preferred vendor is not available for your needs, standard competitive procurement procedures must be followed [PreferredVendorsandContracts.html].\n\n7. Compliance and Policy:\n   - All purchases must adhere to UW\u2019s procurement policies, which emphasize best value, competition, transparency, and compliance with state and federal regulations. Employees involved in purchasing are responsible for following these guidelines [UW Procurement Policy Overview.md].\n\nIf you need more detailed instructions or have specific questions about the process, you are encouraged to contact Richard Pallangyo at rapaugustino@gmail.com for further assistance [Receiving and Invoice Processing.pdf].\n\nIf you would like, I can help you draft an email to Richard Pallangyo to address any specific procurement questions you may have.\n\nPlease let me know if you need additional support or would like assistance with a particular procurement scenario."
+        "question": "What are the procurement policies for laboratory equipment?",
+        "answer": "I did not find specific procurement policies for laboratory equipment in the available documents. However, all purchases must follow UW's general procurement policy, emphasizing best value, competition, transparency, and compliance [1]. For procurement-related questions, contact Richard Pallangyo at rapaugustino@gmail.com.\n\n**\ud83d\udcda Sources:**\n[1] UW Procurement Policy Overview.md\n[2] Purchase Requisition and Order Process.docx\n[3] PreferredVendorsandContracts.html\n[4] Receiving and Invoice Processing.pdf"
       },
       {
-        "question": "yes",
-        "answer": "It appears your message is simply \"yes.\" If you have a specific question about the University of Washington's procurement process, policies, or procedures, please provide more details so I can assist you accurately using the available source documents.\n\nIf you meant to confirm or follow up on a previous answer, or if you need further clarification on any procurement topic\u2014such as how to initiate a purchase, use preferred vendors, or process invoices\u2014please let me know. I'm here to help with any procurement-related inquiries you may have.\n\nIf you are unsure or cannot find the information you need, I can also help you draft an email to the procurement contact, Richard Pallangyo (rapaugustino@gmail.com), for further assistance [Receiving and Invoice Processing.pdf].\n\nPlease let me know how you'd like to proceed!"
+        "question": "How do I purchase software for my department?",
+        "answer": "Create a purchase requisition in Ariba, include supplier and software details, attach required documentation, and route for approval. Use preferred vendors if available; otherwise, follow standard procurement procedures[1][2].\n\n**\ud83d\udcda Sources:**\n[1] Purchase Requisition and Order Process.docx\n[2] PreferredVendorsandContracts.html\n[3] UW Procurement Policy Overview.md\n[4] Receiving and Invoice Processing.pdf"
       }
     ]
+  },
+  "memory-test-final": {
+    "history": [
+      {
+        "question": "How do I create a purchase requisition?",
+        "answer": "Log in to Ariba, select \"Create Requisition,\" fill in required fields (supplier, items, budget codes), attach supporting documents, and submit for approval. The PO is generated after approvals.[1]\n\n**\ud83d\udcda Sources:**\n[1] Purchase Requisition and Order Process.docx\n[2] Receiving and Invoice Processing.pdf",
+        "timestamp": "2025-08-01T15:21:44.666076",
+        "metadata": {}
+      },
+      {
+        "question": "What are the benefits of preferred vendors?",
+        "answer": "Benefits: pre-negotiated pricing, streamlined process, compliance with UW/state requirements, and reduced risk due to vendor vetting [1].\n\n**\ud83d\udcda Sources:**\n[1] PreferredVendorsandContracts.html\n[2] Receiving and Invoice Processing.pdf",
+        "timestamp": "2025-08-01T15:21:56.652552",
+        "metadata": {}
+      },
+      {
+        "question": "What are my questions today?",
+        "answer": "Today, you asked how to create a purchase requisition and about the benefits of preferred vendors.\n\n**\ud83d\udcda Sources:**\n[1] Receiving and Invoice Processing.pdf",
+        "timestamp": "2025-08-01T15:22:08.736622",
+        "metadata": {}
+      }
+    ]
+  },
+  "a:1PPnodKEgWDJigAc3eYWT00o0QzqQpxkyYu1ND5IiODIQCLkb2nkrYZvuHtqSbbgAaUwfRzyEEFCiYVW9IA7CSwvuI7y5_tnnsPwrTjLSDt1_Qvsult_Sag7jzj2Lglq6": {
+    "question": "Who should be contacted for procurement questions?",
+    "answer": "**Contact for Procurement Questions at UW**\n\nIf you have questions regarding procurement policies, specific processes, or require assistance with information related to receiving goods and invoice processing at the University of Washington, you should contact the designated procurement representative.\n\n---\n\n**Primary Contact Information**\n\n- **Name:** Richard Pallangyo  \n- **Email:** rapaugustino@gmail.com\n\nRichard Pallangyo is listed as the point of contact for procurement-related inquiries, including questions about receiving, invoice processing, and related procedures at UW [1].\n\n---\n\n**Additional Guidance**\n\nIf you are unable to reach the contact above or require further assistance, please let me know. I can help facilitate communication with the appropriate department or provide additional resources as needed.\n\n---\n\n**Sources:**\n\n[1] \"Receiving Goods and Processing Invoices at UW,\" UW Accounts Payable.",
+    "sources": [
+      {
+        "name": "Receiving and Invoice Processing.pdf",
+        "citation": 1
+      }
+    ],
+    "timestamp": "2025-08-01T16:58:26.938139",
+    "metadata": {
+      "document_count": 1,
+      "response_length": 920,
+      "conversation_id": "a:1PPnodKEgWDJigAc3eYWT00o0QzqQpxkyYu1ND5IiODIQCLkb2nkrYZvuHtqSbbgAaUwfRzyEEFCiYVW9IA7CSwvuI7y5_tnnsPwrTjLSDt1_Qvsult_Sag7jzj2Lglq6"
+    }
+  },
+  "contact-test": {
+    "history": [
+      {
+        "question": "Who can I contact for procurement questions?",
+        "answer": "Contact Richard Pallangyo at rapaugustino@gmail.com for procurement questions [1].\n\n**\ud83d\udcda Sources:**\n[1] Receiving and Invoice Processing.pdf",
+        "timestamp": "2025-08-01T15:28:14.633709",
+        "metadata": {}
+      }
+    ]
+  },
+  "missing-info-test": {
+    "history": [
+      {
+        "question": "What are the specific dollar thresholds for competitive bidding?",
+        "answer": "I did not find specific dollar thresholds for competitive bidding in the available procurement documents.\n\n**\ud83d\udcda Sources:**\n[1] Receiving and Invoice Processing.pdf",
+        "timestamp": "2025-08-01T15:28:26.282537",
+        "metadata": {}
+      }
+    ]
+  },
+  "test-curl-123": {
+    "question": "What are the specific customs duties for importing a high-energy particle accelerator from Switzerland?",
+    "answer": "I did not find specific information about your query in the available procurement documents. For specialized procurement questions like this, I recommend contacting Richard Pallangyo at the UW Procurement Office. Would you like me to help draft an email to request this information?",
+    "sources": []
+  },
+  "test-curl-456": {
+    "question": "What are the specific customs duties for importing a high-energy particle accelerator from Switzerland?",
+    "answer": "I did not find specific information about your query in the available procurement documents. For specialized procurement questions like this, I recommend contacting Richard Pallangyo at the UW Procurement Office. Would you like me to help draft an email to request this information?",
+    "sources": []
+  },
+  "test-curl-789": {
+    "question": "What are the specific customs duties for importing a high-energy particle accelerator from Switzerland?",
+    "answer": "I did not find specific information about your query in the available procurement documents. For specialized procurement questions like this, I recommend contacting Richard Pallangyo at the UW Procurement Office. Would you like me to help draft an email to request this information?",
+    "sources": []
+  },
+  "test-json-format": {
+    "question": "What are the specific customs duties for importing a high-energy particle accelerator from Switzerland?",
+    "answer": "I did not find specific information about your query in the available procurement documents. For specialized procurement questions like this, I recommend contacting Richard Pallangyo at the UW Procurement Office. Would you like me to help draft an email to request this information?",
+    "sources": []
+  },
+  "test-enhanced-response": {
+    "question": "What are the specific customs duties for importing a high-energy particle accelerator from Switzerland?",
+    "answer": "\ud83d\udd0d **Procurement Information Search**\n\nI searched our UW procurement knowledge base for information about \"what are the specific customs duties for importing a high-energy particle accelerator from switzerland?\", but I couldn't find specific details about this specialized request.\n\n\ud83d\udce7 **How I Can Help**\nFor international procurement and customs requirements, specialized equipment procurement, international vendor requirements like this, I recommend contacting:\n\n**Richard Pallangyo**  \nUW Procurement Office  \nEmail: rapaugustino@gmail.com\n\nWould you like me to help draft an email to Richard requesting information about your specific procurement needs?\n\n\u2705 **What I Can Tell You**\nFrom our procurement policies, I know that specialized purchases often require additional documentation, compliance verification, and may involve specific approval processes.",
+    "sources": []
   }
 }

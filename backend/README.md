@@ -1,4 +1,86 @@
-# Procurement Agent Backend
+# UW Procurement Assistant - Backend
+
+This directory contains the source code for the FastAPI backend that powers the UW Procurement Assistant. It handles all the core logic, including the RAG agent, knowledge base integration, and API endpoints.
+
+## Architecture
+
+The backend is built using FastAPI and follows a modular, service-oriented architecture. Key components include:
+
+- **`main.py`**: The entry point for the FastAPI application.
+- **`app/`**: The main application module.
+  - **`agents/`**: Contains the logic for the different AI agents (e.g., RAG agent).
+  - **`routers/`**: Defines the API endpoints for the application.
+  - **`services/`**: Includes services for interacting with external systems like Azure AI Search and for processing data.
+  - **`config.py`**: Manages application configuration and environment variables.
+
+## Getting Started
+
+Follow these steps to set up and run the backend service on your local machine.
+
+### 1. Prerequisites
+
+- Python 3.9 or higher
+
+### 2. Create a Virtual Environment
+
+To avoid conflicts with other Python projects and system-wide packages, it is **highly recommended** to use a Python virtual environment (`venv`).
+
+From the `backend` directory, run the following commands:
+
+```bash
+# Create a virtual environment
+python3 -m venv venv
+
+# Activate the virtual environment
+# On macOS and Linux:
+source venv/bin/activate
+
+# On Windows:
+.\venv\Scripts\activate
+```
+
+### 3. Install Dependencies
+
+With your virtual environment activated, install the required Python packages using the `requirements.txt` file:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure Environment Variables
+
+The application requires certain environment variables to be set, such as API keys and connection strings. An example configuration file is provided.
+
+1.  Make a copy of the example file:
+
+    ```bash
+    cp env.example .env
+    ```
+
+2.  Open the `.env` file and fill in the required values for your Azure services (OpenAI, AI Search, etc.).
+
+### 5. Run the Server
+
+Once everything is set up, you can start the FastAPI server using `uvicorn`:
+
+```bash
+uvicorn main:app --reload
+```
+
+This command will start the server, and it will automatically reload whenever you make changes to the code. The API will be available at `http://127.0.0.1:8000`.
+
+## API Endpoints
+
+The application exposes several API endpoints for interacting with the agent. You can view the full, interactive API documentation (provided by Swagger UI) by navigating to `http://127.0.0.1:8000/docs` in your browser.
+
+Key endpoints include:
+
+- **`POST /agents/query/stream`**: The primary endpoint for sending a query to the RAG agent and receiving a real-time, streamed response.
+- **`GET /health`**: A health check endpoint to verify that the service is running correctly.
+
+## Code Style and Linting
+
+This project uses `black` for code formatting and `ruff` for linting to ensure a consistent and high-quality codebase. It is recommended to use these tools before committing any changes.
 
 A modular FastAPI backend with multi-agent architecture for procurement assistance, featuring RAG (Retrieval-Augmented Generation) capabilities and Microsoft Teams integration.
 

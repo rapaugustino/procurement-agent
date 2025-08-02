@@ -4,18 +4,27 @@ import config from "./config";
 
 // Create the main application object
 const storage = new MemoryStorage();
-export const agentApp = new AgentApplication({
+const agentApp = new AgentApplication({
   storage,
+  ai: {
+    planner: {
+      name: "AssistantsPlanner",
+      options: {
+        apiKey: config.openAIKey,
+        apiVersion: config.openAIApiVersion,
+        endpoint: config.openAIEndpoint,
+        model: config.openAIModelName,
+      },
+    },
+  },
 });
 
-// Welcome message
-agentApp.conversationUpdate("membersAdded", async (context: TurnContext) => {
-  await context.sendActivity(
-    `🎯 **Welcome to the UW Procurement Agent!**\n\n` +
-    `I'm here to help you with University of Washington procurement questions. ` +
-    `Ask me about policies, procedures, vendor information, or approval requirements!`
-  );
-});
+// Define application turn state
+export interface ApplicationTurnState {
+  conversation: {
+    lastUserMessage?: string;
+  };
+}
 
 // Handle incoming messages
 agentApp.activity(ActivityTypes.Message, async (context: TurnContext) => {
@@ -56,7 +65,7 @@ agentApp.activity(ActivityTypes.Message, async (context: TurnContext) => {
     console.error('❌ Error:', error);
     await context.sendActivity(
       `❌ I'm having trouble connecting to my knowledge base right now.\n\n` +
-      `Please try again in a moment, or contact Richard Pallangyo directly at **rpallang@uw.edu** for immediate assistance.`
+      `Please try again in a moment, or contact Richard Pallangyo directly at rpallang@uw.edu for immediate assistance.`
     );
   }
 });
@@ -87,12 +96,10 @@ async function handleStreamingResponse(context: TurnContext, response: Response)
           try {
             const data = JSON.parse(line.substring(6));
             
-            // Handle different event types based on actual backend response format
-            if (data.content) {
-              // This is a chunk with content
+            // Handle different event types
+            if (data.type === 'chunk' && data.content) {
               fullResponse += data.content;
-            } else if (data.response) {
-              // This is the completed response
+            } else if (data.type === 'completed' && data.response) {
               fullResponse = data.response;
               break;
             }
@@ -103,9 +110,9 @@ async function handleStreamingResponse(context: TurnContext, response: Response)
       }
     }
     
-    // Send the complete response with stunning Adaptive Card UI
+    // Send the complete response
     if (fullResponse.trim()) {
-      await sendAdaptiveCardResponse(context, fullResponse);
+      await context.sendActivity(fullResponse);
     } else {
       await context.sendActivity('❌ I received an empty response. Please try rephrasing your question.');
     }
@@ -115,39 +122,6 @@ async function handleStreamingResponse(context: TurnContext, response: Response)
     await context.sendActivity('❌ There was an error processing the response. Please try again.');
   } finally {
     reader.releaseLock();
-  }
-}
-
-// Create enhanced response with better formatting for Teams
-async function sendAdaptiveCardResponse(context: TurnContext, response: string) {
-  try {
-    // Parse the response to extract main content and sources
-    const parts = response.split('**📚 Sources:**');
-    const mainAnswer = parts[0].trim();
-    const sourcesSection = parts[1] ? parts[1].trim() : '';
-    
-    // Format the response with better structure for Teams
-    let formattedResponse = `🎯 **UW Procurement Agent**\n`;
-    formattedResponse += `*University of Washington Procurement Services*\n\n`;
-    formattedResponse += `${mainAnswer}\n\n`;
-    
-    // Add sources if available
-    if (sourcesSection) {
-      formattedResponse += `**📚 Knowledge Sources:**\n${sourcesSection}\n\n`;
-    }
-    
-    // Add helpful actions
-    formattedResponse += `---\n`;
-    formattedResponse += `💡 **Need more help?** Ask me "Who can I contact for procurement questions?"\n`;
-    formattedResponse += `❓ **Have another question?** Just ask about any procurement topic!`;
-    
-    // Send the formatted response
-    await context.sendActivity(formattedResponse);
-    
-  } catch (error) {
-    console.error('❌ Error formatting response:', error);
-    // Fallback to plain text if formatting fails
-    await context.sendActivity(response);
   }
 }
 

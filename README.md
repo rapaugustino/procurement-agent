@@ -1,4 +1,47 @@
-# Procurement Agent
+# UW Procurement Assistant
+
+Welcome to the UW Procurement Assistant, an intelligent, conversational AI agent designed to streamline procurement processes at the University of Washington. This agent provides quick, accurate answers to procurement-related questions, leveraging a robust knowledge base and a sophisticated RAG (Retrieval-Augmented Generation) architecture.
+
+Built with FastAPI for the backend and designed for integration with Microsoft Teams, this assistant offers a seamless and professional user experience.
+
+## Key Features
+
+- **Conversational AI:** Engage in natural, human-like conversations to get the information you need.
+- **RAG Architecture:** Retrieves information directly from a secure knowledge base of UW procurement documents, ensuring answers are accurate, context-aware, and up-to-date.
+- **Microsoft Teams Integration:** A user-friendly interface within Teams allows for easy access and interaction.
+- **Real-time Streaming:** Responses are streamed in real-time, allowing you to see answers as they are generated.
+- **Conversation Memory:** The agent remembers the context of your conversation for a more coherent and efficient experience.
+- **Professional & Organized Responses:** Answers are well-structured, with clear citations and links to source documents.
+
+## Project Structure
+
+This repository is organized into two main components:
+
+- **/frontend:** Contains the Microsoft Teams application source code. (Further details to be added as the frontend is developed).
+- **/backend:** The core FastAPI application that powers the RAG agent, manages the knowledge base, and serves the API.
+
+## Getting Started
+
+To get the project up and running, you will need to set up the backend service and, optionally, the Teams frontend.
+
+### Backend Setup
+
+For detailed instructions on setting up the backend, please refer to the `backend/README.md` file.
+
+### Frontend Setup
+
+For detailed instructions on setting up the Microsoft Teams application, please refer to the `frontend/README.md` file.
+
+## Technology Stack
+
+- **Backend:** FastAPI, Python, LangChain, LangGraph, Azure AI Search
+- **Frontend:** Microsoft Teams SDK, TypeScript, Adaptive Cards
+- **Deployment:** Designed for Azure
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs, feature requests, or improvements.
+
 
 A FastAPI backend application for procurement agent functionality.
 
