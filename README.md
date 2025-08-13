@@ -1,4 +1,18 @@
-# UW Procurement Assistant
+# UW Procurement RAG Agent
+
+This project is a Retrieval-Augmented Generation (RAG) agent designed to answer questions about the University of Washington's procurement policies. It provides a conversational interface that allows users to get clear, accurate, and cited answers from a knowledge base of procurement documents.
+
+## Components
+
+- **Backend**: A FastAPI application that serves the RAG agent, handles conversational memory, and streams responses. See the [backend/README.md](backend/README.md) for detailed setup and usage instructions.
+- **Frontend**: A Microsoft Teams application that provides the user interface for interacting with the agent (not included in this repository).
+
+## Features
+
+- **Conversational Q&A**: Ask questions in natural language and get helpful answers.
+- **Sourced Answers**: Responses are based on and cite the source documents from the knowledge base.
+- **Streaming Responses**: Get real-time feedback as the agent generates an answer.
+- **Conversation History**: The agent remembers the context of the conversation to answer follow-up questions.
 
 Welcome to the UW Procurement Assistant, an intelligent, conversational AI agent designed to streamline procurement processes at the University of Washington. This agent provides quick, accurate answers to procurement-related questions, leveraging a robust knowledge base and a sophisticated RAG (Retrieval-Augmented Generation) architecture.
 

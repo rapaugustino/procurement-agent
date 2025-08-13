@@ -5,6 +5,7 @@ Provides persistent storage for agent conversations.
 
 import json
 import os
+import logging
 from typing import Dict, Any, List
 from datetime import datetime
 
@@ -15,6 +16,7 @@ class ConversationMemoryService:
     def __init__(self, memory_file: str = "conversation_memory.json"):
         self.memory_file = memory_file
         self.memory_dir = os.path.dirname(os.path.abspath(memory_file))
+        self.logger = logging.getLogger(__name__)
         
         # Ensure memory directory exists
         if self.memory_dir and not os.path.exists(self.memory_dir):
@@ -38,7 +40,7 @@ class ConversationMemoryService:
             else:
                 return {"history": []}
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Error loading conversation memory: {e}")
+            self.logger.error(f"Error loading conversation memory: {e}")
             return {"history": []}
     
     def save_conversation_memory(self, memory: Dict[str, Any], conversation_id: str = "default"):
@@ -46,7 +48,7 @@ class ConversationMemoryService:
         Save conversation memory for a specific conversation.
         
         Args:
-            memory: Memory dictionary to save
+            memory: Memory dictionary to save (single entry to append to history)
             conversation_id: Unique identifier for the conversation
         """
         try:
@@ -56,15 +58,38 @@ class ConversationMemoryService:
                 with open(self.memory_file, 'r') as f:
                     all_memories = json.load(f)
             
-            # Update memory for this conversation
-            all_memories[conversation_id] = memory
+            # Get or create conversation history structure
+            if conversation_id not in all_memories:
+                all_memories[conversation_id] = {"history": []}
+            elif "history" not in all_memories[conversation_id]:
+                # Handle legacy format - convert flat entry to history array
+                legacy_entry = all_memories[conversation_id]
+                if "question" in legacy_entry and "answer" in legacy_entry:
+                    all_memories[conversation_id] = {
+                        "history": [{
+                            "question": legacy_entry["question"],
+                            "answer": legacy_entry["answer"]
+                        }]
+                    }
+                else:
+                    all_memories[conversation_id] = {"history": []}
+            
+            # Append new memory entry to history
+            history_entry = {
+                "question": memory.get("question", ""),
+                "answer": memory.get("answer", "")
+            }
+            all_memories[conversation_id]["history"].append(history_entry)
+            
+            # Keep only last 10 entries to prevent memory bloat
+            all_memories[conversation_id]["history"] = all_memories[conversation_id]["history"][-10:]
             
             # Save back to file
             with open(self.memory_file, 'w') as f:
                 json.dump(all_memories, f, indent=2)
                 
         except Exception as e:
-            print(f"Error saving conversation memory: {e}")
+            self.logger.error(f"Error saving conversation memory: {e}")
     
     def add_interaction(self, question: str, answer: str, conversation_id: str = "default", 
                        metadata: Dict[str, Any] = None):
@@ -134,7 +159,7 @@ class ConversationMemoryService:
                     json.dump(all_memories, f, indent=2)
                     
         except Exception as e:
-            print(f"Error clearing conversation memory: {e}")
+            self.logger.error(f"Error clearing conversation memory: {e}")
     
     def get_all_conversations(self) -> List[str]:
         """
@@ -151,5 +176,5 @@ class ConversationMemoryService:
             else:
                 return []
         except Exception as e:
-            print(f"Error getting conversation list: {e}")
+            self.logger.error(f"Error getting conversation list: {e}")
             return []

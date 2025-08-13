@@ -46,18 +46,18 @@
     ]
   },
   "a:1PPnodKEgWDJigAc3eYWT00o0QzqQpxkyYu1ND5IiODIQCLkb2nkrYZvuHtqSbbgAaUwfRzyEEFCiYVW9IA7CSwvuI7y5_tnnsPwrTjLSDt1_Qvsult_Sag7jzj2Lglq6": {
-    "question": "Who should be contacted for procurement questions?",
-    "answer": "**Contact for Procurement Questions at UW**\n\nIf you have questions regarding procurement policies, specific processes, or require assistance with information related to receiving goods and invoice processing at the University of Washington, you should contact the designated procurement representative.\n\n---\n\n**Primary Contact Information**\n\n- **Name:** Richard Pallangyo  \n- **Email:** rapaugustino@gmail.com\n\nRichard Pallangyo is listed as the point of contact for procurement-related inquiries, including questions about receiving, invoice processing, and related procedures at UW [1].\n\n---\n\n**Additional Guidance**\n\nIf you are unable to reach the contact above or require further assistance, please let me know. I can help facilitate communication with the appropriate department or provide additional resources as needed.\n\n---\n\n**Sources:**\n\n[1] \"Receiving Goods and Processing Invoices at UW,\" UW Accounts Payable.",
+    "question": "What is the policy for buying a new laptop?",
+    "answer": "> The University of Washington requires all laptop purchases to follow its general procurement policy, emphasizing best value, competition, transparency, and compliance with applicable regulations [1].\n\n### Summary of UW Laptop Procurement Policy\n\n* **Best Value:** Laptop purchases must consider price, quality, service, and suitability for purpose to ensure optimal value [1].\n* **Competition:** Solicitations should encourage maximum competition among qualified vendors; direct purchases or simplified quotes may be used for small purchases below a certain threshold [1].\n* **Procurement Methods:**\n    * **Small Purchases:** If the laptop cost is below the designated threshold, direct purchase or simplified quotes are permitted [1].\n    * **Competitive Bids/RFPs:** For larger purchases exceeding the threshold, a formal solicitation process (ITB or RFP) is required [1].\n    * **Sole Source:** Only allowed if it is documented that no other vendor can provide the required laptop, and must meet specific criteria [1].\n* **Transparency and Compliance:** All laptop purchases must be conducted transparently and in accordance with UW, state, and federal laws and regulations [1].\n* **Employee Responsibility:** All employees involved in laptop purchasing must understand and follow these guidelines; non-compliance may result in audit findings and disciplinary action [1].\n\n### Structured Policy Table\n\n| Principle         | Application to Laptop Purchases                                   |\n|-------------------|-------------------------------------------------------------------|\n| **Best Value**    | Consider price, quality, service, and suitability                 |\n| **Competition**   | Encourage bids/quotes from multiple qualified vendors             |\n| **Small Purchases** | Direct purchase/simplified quotes if below threshold            |\n| **Competitive Bids/RFPs** | Formal process required for purchases above threshold     |\n| **Sole Source**   | Only if documented and justified; rare for laptops                |\n| **Transparency**  | All processes must be ethical and open                            |\n| **Compliance**    | Must follow UW, state, and federal regulations                    |\n\n### Sources\n\n[1] University of Washington General Procurement Policy",
     "sources": [
       {
-        "name": "Receiving and Invoice Processing.pdf",
+        "name": "UW Procurement Policy Overview.md",
         "citation": 1
       }
     ],
-    "timestamp": "2025-08-01T16:58:26.938139",
+    "timestamp": "2025-08-09T23:59:10.816759",
     "metadata": {
       "document_count": 1,
-      "response_length": 920,
+      "response_length": 2287,
       "conversation_id": "a:1PPnodKEgWDJigAc3eYWT00o0QzqQpxkyYu1ND5IiODIQCLkb2nkrYZvuHtqSbbgAaUwfRzyEEFCiYVW9IA7CSwvuI7y5_tnnsPwrTjLSDt1_Qvsult_Sag7jzj2Lglq6"
     }
   },
@@ -105,5 +105,60 @@
     "question": "What are the specific customs duties for importing a high-energy particle accelerator from Switzerland?",
     "answer": "\ud83d\udd0d **Procurement Information Search**\n\nI searched our UW procurement knowledge base for information about \"what are the specific customs duties for importing a high-energy particle accelerator from switzerland?\", but I couldn't find specific details about this specialized request.\n\n\ud83d\udce7 **How I Can Help**\nFor international procurement and customs requirements, specialized equipment procurement, international vendor requirements like this, I recommend contacting:\n\n**Richard Pallangyo**  \nUW Procurement Office  \nEmail: rapaugustino@gmail.com\n\nWould you like me to help draft an email to Richard requesting information about your specific procurement needs?\n\n\u2705 **What I Can Tell You**\nFrom our procurement policies, I know that specialized purchases often require additional documentation, compliance verification, and may involve specific approval processes.",
     "sources": []
+  },
+  "test-convo-1": {
+    "history": [
+      {
+        "question": "What is the spending limit for that?",
+        "answer": "**Procurement Information Search**\n\nI searched our UW procurement knowledge base for information about \"what is the spending limit for that?\", but I couldn't find specific details about this specialized request.\n\n**How I Can Help**\nFor specialized procurement questions like this, I recommend contacting:\n\n**Richard Pallangyo** UW Procurement Office  \nEmail: rapaugustino@gmail.com\n\nWould you like me to help draft an email to Richard requesting information about your specific procurement needs?\n\n**What I Can Tell You**\nFrom our procurement policies, I know that specialized purchases often require additional documentation, compliance verification, and may involve specific approval processes."
+      },
+      {
+        "question": "What is the policy for buying a new laptop?",
+        "answer": "> **Key Takeaway:** The University of Washington's procurement policy requires that all purchases, including laptops, follow principles of best value, competition, transparency, and compliance with UW, state, and federal regulations. The specific method for purchasing a laptop depends on the dollar amount and may involve small purchase procedures, competitive bids, or sole source justification.\n\n---\n\n# UW Policy for Buying a New Laptop\n\n## 1. General Principles\n- **Best Value:** Consider price, quality, service, and suitability for purpose.\n- **Competition:** Encourage maximum competition among qualified vendors.\n- **Transparency:** Conduct all procurement processes ethically and openly.\n- **Compliance:** Follow all UW, state, and federal purchasing laws and regulations.  \n  *Source: [1]*\n\n## 2. Procurement Methods\n| Method                | Description                                                                                   | Applicability to Laptop Purchases |\n|-----------------------|----------------------------------------------------------------------------------------------|-----------------------------------|\n| Small Purchases       | For purchases below a certain threshold; may allow direct purchase or simplified quotes.     | Likely for standard laptops if under threshold. |\n| Competitive Bids/RFPs | Required for larger purchases; involves formal solicitation (ITB/RFP).                       | Required for bulk or high-value laptop purchases. |\n| Sole Source           | Only allowed under specific, documented circumstances where only one vendor can supply.       | Rare for laptops; must be justified. |\n\n*Source: [1]*\n\n## 3. Employee Responsibility\n- All employees involved in purchasing must understand and follow these guidelines.\n- Non-compliance may result in audit findings and disciplinary action.\n  *Source: [1]*\n\n---\n\n## Source\n- [1]: University of Washington General Procurement Policy, UW Procurement Services\n\n---\n\n**If you need details on specific dollar thresholds or step-by-step procedures for laptop purchases, please provide additional context or documents.**"
+      },
+      {
+        "question": "What is the spending limit for that?",
+        "answer": "**Procurement Information Search**\n\nI searched our UW procurement knowledge base for information about \"what is the spending limit for that?\", but I couldn't find specific details about this specialized request.\n\n**How I Can Help**\nFor specialized procurement questions like this, I recommend contacting:\n\n**Richard Pallangyo** UW Procurement Office  \nEmail: rapaugustino@gmail.com\n\nWould you like me to help draft an email to Richard requesting information about your specific procurement needs?\n\n**What I Can Tell You**\nFrom our procurement policies, I know that specialized purchases often require additional documentation, compliance verification, and may involve specific approval processes."
+      }
+    ]
+  },
+  "test-convo-2": {
+    "history": [
+      {
+        "question": "What's the weather like in Seattle?",
+        "answer": "**Procurement Information Search**\n\nI searched our UW procurement knowledge base for information about \"what's the weather like in seattle?\", but I couldn't find specific details about this specialized request.\n\n**How I Can Help**\nFor specialized procurement questions like this, I recommend contacting:\n\n**Richard Pallangyo** UW Procurement Office  \nEmail: rapaugustino@gmail.com\n\nWould you like me to help draft an email to Richard requesting information about your specific procurement needs?\n\n**What I Can Tell You**\nFrom our procurement policies, I know that specialized purchases often require additional documentation, compliance verification, and may involve specific approval processes."
+      },
+      {
+        "question": "What's the weather like in Seattle?",
+        "answer": "**Procurement Information Search**\n\nI searched our UW procurement knowledge base for information about \"what's the weather like in seattle?\", but I couldn't find specific details about this specialized request.\n\n**How I Can Help**\nFor specialized procurement questions like this, I recommend contacting:\n\n**Richard Pallangyo** UW Procurement Office  \nEmail: rapaugustino@gmail.com\n\nWould you like me to help draft an email to Richard requesting information about your specific procurement needs?\n\n**What I Can Tell You**\nFrom our procurement policies, I know that specialized purchases often require additional documentation, compliance verification, and may involve specific approval processes."
+      }
+    ]
+  },
+  "7d51358d-79d4-4dbe-81bc-c0d6866b85d4": {
+    "question": "What's the weather like in Seattle?",
+    "answer": "**Procurement Information Search**\n\nI searched our UW procurement knowledge base for information about \"what's the weather like in seattle?\", but I couldn't find specific details about this specialized request.\n\n**How I Can Help**\nFor specialized procurement questions like this, I recommend contacting:\n\n**Richard Pallangyo** UW Procurement Office  \nEmail: rapaugustino@gmail.com\n\nWould you like me to help draft an email to Richard requesting information about your specific procurement needs?\n\n**What I Can Tell You**\nFrom our procurement policies, I know that specialized purchases often require additional documentation, compliance verification, and may involve specific approval processes.",
+    "sources": [],
+    "timestamp": "2025-08-10T00:54:55.937247",
+    "metadata": {
+      "document_count": 0,
+      "response_length": 695,
+      "conversation_id": "7d51358d-79d4-4dbe-81bc-c0d6866b85d4"
+    }
+  },
+  "8d80cdc5-0529-4c27-a5d1-49e73fcc3308": {
+    "history": [
+      {
+        "question": "What is the policy for buying a new laptop?",
+        "answer": "> **Key Takeaway:** The University of Washington's procurement policy requires that all purchases, including laptops, follow principles of best value, competition, transparency, and compliance with UW, state, and federal regulations. The specific method for buying a laptop depends on the purchase amount and may involve small purchase procedures, competitive bids, or sole source justification.\n\n---\n\n# UW Policy for Buying a New Laptop\n\n## 1. General Principles\n- **Best Value:** Consider price, quality, service, and suitability for purpose.\n- **Competition:** Encourage maximum competition among qualified vendors.\n- **Transparency:** Conduct procurement processes ethically and openly.\n- **Compliance:** Follow all UW, state, and federal purchasing laws and regulations.  \n&nbsp;&nbsp;_Source: [1]_\n\n## 2. Procurement Methods\n| Method              | Description                                                                                   | Applicability to Laptop Purchases |\n|---------------------|----------------------------------------------------------------------------------------------|-----------------------------------|\n| Small Purchases     | Direct purchase or simplified quotes for purchases below a certain threshold.                 | Likely for standard laptops if under threshold. |\n| Competitive Bids/RFPs | Formal solicitation (ITB/RFP) required for larger purchases.                                 | Required for bulk or high-value laptop purchases. |\n| Sole Source         | Only allowed with documented justification that only one vendor can supply the laptop.        | Rare; must be justified and documented. |\n\n_Source: [1]_\n\n## 3. Employee Responsibility\n- All employees involved in purchasing must understand and follow these guidelines.\n- Non-compliance may result in audit findings and disciplinary action.  \n&nbsp;&nbsp;_Source: [1]_\n\n---\n\n### **Citation**\n- [1]: UW Procurement Policy Overview\n\nIf you need more specific details (such as dollar thresholds or step-by-step procedures for laptop purchases), please provide additional context documents."
+      },
+      {
+        "question": "What is the spending limit for that?",
+        "answer": "**Procurement Information Search**\n\nI searched our UW procurement knowledge base for information about \"what is the spending limit for that?\", but I couldn't find specific details about this specialized request.\n\n**How I Can Help**\nFor specialized procurement questions like this, I recommend contacting:\n\n**Richard Pallangyo** UW Procurement Office  \nEmail: rapaugustino@gmail.com\n\nWould you like me to help draft an email to Richard requesting information about your specific procurement needs?\n\n**What I Can Tell You**\nFrom our procurement policies, I know that specialized purchases often require additional documentation, compliance verification, and may involve specific approval processes."
+      },
+      {
+        "question": "What's the weather like in Seattle?",
+        "answer": "**Procurement Information Search**\n\nI searched our UW procurement knowledge base for information about \"what's the weather like in seattle?\", but I couldn't find specific details about this specialized request.\n\n**How I Can Help**\nFor specialized procurement questions like this, I recommend contacting:\n\n**Richard Pallangyo** UW Procurement Office  \nEmail: rapaugustino@gmail.com\n\nWould you like me to help draft an email to Richard requesting information about your specific procurement needs?\n\n**What I Can Tell You**\nFrom our procurement policies, I know that specialized purchases often require additional documentation, compliance verification, and may involve specific approval processes."
+      }
+    ]
   }
 }

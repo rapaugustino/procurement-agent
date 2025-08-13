@@ -11,6 +11,8 @@ import re
 import asyncio
 import json
 import logging
+import os
+import uuid
 from typing import Dict, Any, List, Optional, TypedDict
 from datetime import datetime
 
@@ -56,14 +58,14 @@ class RAGAgent(BaseAgent):
     re-ranking, and final answer generation.
     """
     
-    _prompt_template = """You are a professional, helpful, and highly-trained assistant for the University of Washington's procurement department.\n\n    CRITICAL INSTRUCTIONS:\n    1.  **Answer from Documents:** Base your answers *only* on the information found in the provided 'CONTEXT FROM KNOWLEDGE BASE' and 'CONVERSATION HISTORY'. Do not use external knowledge.\n    2.  **Procurement Focus:** Address questions about UW procurement, purchasing, policies, and processes. For non-procurement or general questions, politely state: \"I am designed to assist with UW procurement questions. How can I help you with a procurement-related topic?\".\n    3.  **Comprehensive Answers:** When the documents contain a full answer, provide a thorough and informative response. Use bullet points for clarity if needed.\n    4.  **Handling Incomplete Information:**\n        *   If the documents do not contain the information to answer the question, but you find relevant 'CONTACT INFORMATION', you MUST respond with the following template:\n            `I could not find the specific information for your question, but I was able to find this contact who may be able to help: {contact_info}. I can help draft an email to this contact. Would you like me to proceed?`\n        *   If the documents do not contain the answer AND no contact information is found, state: `I was unable to find an answer to your question in the available documents.`\n    5.  **Citations:** For every piece of information you provide from the knowledge base, you MUST include a numbered inline citation, like [1], [2], etc.\n    6.  **Professional Tone:** Maintain a professional, helpful, and human-like tone at all times.\n\n    ---\n    CONVERSATION HISTORY:\n    {history}\n\n    ---\n    CONTEXT FROM KNOWLEDGE BASE:\n    {context}\n\n    ---\n    CONTACT INFORMATION (only if found in documents):\n    {contact_info}\n\n    ---\n    QUESTION:\n    {question}\n\n    ---\n    Final Answer:\n    """
+    _prompt_template = """You are a professional, helpful, and highly-trained assistant for the University of Washington's procurement department.\n\n    CRITICAL INSTRUCTIONS:\n    1.  **Answer from Documents:** Base your answers *only* on the information found in the provided 'CONTEXT FROM KNOWLEDGE BASE' and 'CONVERSATION HISTORY'. Do not use external knowledge.\n    2.  **Procurement Focus:** Address questions about UW procurement, purchasing, policies, and processes. For non-procurement or general questions, politely state: \"I am designed to assist with UW procurement questions. How can I help you with a procurement-related topic?\".\n    3.  **Comprehensive Answers:** When the documents contain a full answer, provide a thorough and informative response. Use bullet points for clarity if needed.\n    4.  **Handling Incomplete Information:**\n        * If the documents do not contain the information to answer the question, but you find relevant 'CONTACT INFORMATION', you MUST respond with the following template:\n            `I could not find the specific information for your question, but I was able to find this contact who may be able to help: {contact_info}. I can help draft an email to this contact. Would you like me to proceed?`\n        * If the documents do not contain the answer AND no contact information is found, state: `I was unable to find an answer to your question in the available documents.`\n    5.  **Citations:** For every piece of information you provide from the knowledge base, you MUST include a numbered inline citation, like [1], [2], etc.\n    6.  **Professional Tone:** Maintain a professional, helpful, and human-like tone at all times.\n\n    ---\n    CONVERSATION HISTORY:\n    {history}\n\n    ---\n    CONTEXT FROM KNOWLEDGE BASE:\n    {context}\n\n    ---\n    CONTACT INFORMATION (only if found in documents):\n    {contact_info}\n\n    ---\n    QUESTION:\n    {question}\n\n    ---\n    Final Answer:\n    """
 
     def __init__(self):
         super().__init__("rag_agent", "RAG Agent")
         self.llm = None
         self.embeddings = None
         self.retriever = None
-        self.memory_service = ConversationMemoryService()
+        self.memory_service = ConversationMemoryService("backend/conversation_memory.json")
         self.query_processor = None  # Will be initialized after LLM is set up
         self.graph = self._build_graph()
         
@@ -71,29 +73,19 @@ class RAGAgent(BaseAgent):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self.logger.setLevel(logging.INFO)
 
-        # Professional prompt template for RAG generation
-        self._enhanced_prompt_template = """
-You are a professional UW procurement assistant. Provide helpful, accurate answers with clear structure and professional formatting.
+        # Load prompt from external file
+        self._enhanced_prompt_template = self._load_prompt_template()
 
-Context: {context}
-
-Conversation History: {history}
-
-Question: {question}
-
-Contact Information: {contact_info}
-
-Instructions:
-- Use clear section headers and professional formatting
-- Reference specific details from the user's question
-- Provide numbered citations like [1], [2] for sources
-- Include a "Sources:" section at the end listing all referenced documents
-- If information is incomplete, acknowledge limitations and offer to help contact relevant personnel
-- Keep responses professional, concise, and actionable
-- Structure responses with clear sections when appropriate
-
-Provide your response:
-"""
+    def _load_prompt_template(self) -> str:
+        """Loads the prompt template from an external file."""
+        prompt_path = os.path.join(os.path.dirname(__file__), "prompt_template.md")
+        try:
+            with open(prompt_path, "r") as f:
+                return f.read()
+        except FileNotFoundError:
+            logging.error(f"Prompt template file not found at {prompt_path}")
+            # Fallback to a default prompt if the file is missing
+            return "You are a helpful assistant. Answer the user's question based on the context provided.\n\nContext: {context}\n\nQuestion: {question}"
 
     def _build_graph(self) -> StateGraph:
         """Builds and compiles the LangGraph workflow for the RAG pipeline."""
@@ -137,7 +129,7 @@ Provide your response:
             initial_state = RAGGraphState(
                 question=question,
                 conversation_id=conversation_id,
-                task_id=state.task_id,
+
                 conversation_memory=self.memory_service.load_conversation_memory(conversation_id),
                 documents=[],
                 generation="",
@@ -149,7 +141,7 @@ Provide your response:
 
             return AgentResponse(
                 agent_id=self.agent_id,
-                task_id=state.task_id,
+
                 success=True,
                 message=final_state.get("generation", ""),
                 data={"sources": self._create_source_list(final_state.get("documents", []))}
@@ -158,17 +150,17 @@ Provide your response:
             print(f"Error during RAG graph processing: {e}")
             return AgentResponse(
                 agent_id=self.agent_id,
-                task_id=state.task_id,
+
                 success=False,
                 message=f"An error occurred: {e}"
             )
 
-    async def run(self, question: str, conversation_id: str, task_id: str):
+    async def stream_run(self, question: str, conversation_id: Optional[str] = None):
+        task_id = str(uuid.uuid4())
         """Executes the RAG graph as an async generator, yielding the final response."""
         # Structured logging for observability
         workflow_start = datetime.now()
         self._log_workflow_event("workflow_started", {
-            "task_id": task_id,
             "conversation_id": conversation_id,
             "question": question,
             "timestamp": workflow_start.isoformat()
@@ -180,7 +172,7 @@ Provide your response:
             # Load conversation memory and log context
             conversation_memory = self.memory_service.load_conversation_memory(conversation_id)
             self._log_workflow_event("memory_loaded", {
-                "task_id": task_id,
+    
                 "conversation_id": conversation_id,
                 "memory_entries": len(conversation_memory.get("history", [])),
                 "timestamp": datetime.now().isoformat()
@@ -200,7 +192,7 @@ Provide your response:
                 # Log each graph event for observability
                 for node_name, node_output in event.items():
                     self._log_workflow_event("node_executed", {
-                        "task_id": task_id,
+            
                         "node_name": node_name,
                         "timestamp": datetime.now().isoformat()
                     })
@@ -209,7 +201,7 @@ Provide your response:
                 if "__end__" in event:
                     final_state = event["__end__"]
                     self._log_workflow_event("workflow_completed", {
-                        "task_id": task_id,
+            
                         "has_generation": bool(final_state.get("generation")),
                         "document_count": len(final_state.get("documents", [])),
                         "timestamp": datetime.now().isoformat()
@@ -225,7 +217,7 @@ Provide your response:
                 
                 # Log successful response generation
                 self._log_workflow_event("response_generated", {
-                    "task_id": task_id,
+        
                     "response_length": len(generation),
                     "document_count": len(final_state.get("documents", [])),
                     "timestamp": datetime.now().isoformat()
@@ -235,13 +227,13 @@ Provide your response:
                     # Update memory with the final result
                     self._update_conversation_memory(conversation_id, question, final_state)
                     self._log_workflow_event("memory_updated", {
-                        "task_id": task_id,
+            
                         "conversation_id": conversation_id,
                         "timestamp": datetime.now().isoformat()
                     })
                 except Exception as memory_error:
                     self._log_workflow_event("memory_error", {
-                        "task_id": task_id,
+            
                         "error": str(memory_error),
                         "timestamp": datetime.now().isoformat()
                     })
@@ -249,7 +241,7 @@ Provide your response:
                 # Calculate total processing time
                 processing_time = (datetime.now() - workflow_start).total_seconds()
                 self._log_workflow_event("workflow_finished", {
-                    "task_id": task_id,
+        
                     "processing_time_seconds": processing_time,
                     "success": True,
                     "timestamp": datetime.now().isoformat()
@@ -259,7 +251,7 @@ Provide your response:
                 yield generation
             else:
                 self._log_workflow_event("workflow_failed", {
-                    "task_id": task_id,
+        
                     "reason": "no_generation_found",
                     "timestamp": datetime.now().isoformat()
                 })
@@ -267,7 +259,7 @@ Provide your response:
 
         except Exception as e:
             self._log_workflow_event("workflow_error", {
-                "task_id": task_id,
+    
                 "error": str(e),
                 "error_type": type(e).__name__,
                 "timestamp": datetime.now().isoformat()
@@ -278,22 +270,33 @@ Provide your response:
 
     async def _rewrite_query_with_history(self, state: RAGGraphState) -> Dict[str, Any]:
         """Rewrites the user's query based on conversation history for better retrieval."""
-        print("---NODE: Rewriting query---")
+        self.logger.info("---NODE: Rewriting query---")
         question = state["question"]
         conversation_memory = state["conversation_memory"]
         
+        # Debug logging to understand conversation memory
+        self.logger.info(f"DEBUG: Question = {question}")
+        self.logger.info(f"DEBUG: Conversation memory type = {type(conversation_memory)}")
+        self.logger.info(f"DEBUG: Conversation memory keys = {list(conversation_memory.keys()) if isinstance(conversation_memory, dict) else 'Not a dict'}")
+        if isinstance(conversation_memory, dict) and "history" in conversation_memory:
+            self.logger.info(f"DEBUG: History length = {len(conversation_memory['history'])}")
+            if conversation_memory['history']:
+                self.logger.info(f"DEBUG: First history entry = {conversation_memory['history'][0]}")
+        
         rewritten_question = await self.query_processor.rewrite_query(question, conversation_memory)
+        self.logger.info(f"DEBUG: Original question = {question}")
+        self.logger.info(f"DEBUG: Rewritten question = {rewritten_question}")
         return {"question": rewritten_question, "original_question": question}
 
     def _retrieve_documents(self, state: RAGGraphState) -> Dict[str, Any]:
         """Retrieves documents from Azure Search based on the rewritten query."""
-        print("---NODE: Retrieving documents---")
+        self.logger.info("---NODE: Retrieving documents---")
         documents = self.retriever.invoke(state["question"])
         return {"documents": documents}
 
     def _grade_documents_for_relevance(self, state: RAGGraphState) -> Dict[str, Any]:
         """Grades retrieved documents for relevance to the original question."""
-        print("---NODE: Grading documents---")
+        self.logger.info("---NODE: Grading documents---")
         if not state.get("documents"):
             return {"documents": []}
         
@@ -302,7 +305,7 @@ Provide your response:
 
     def _rerank_documents_for_context(self, state: RAGGraphState) -> Dict[str, Any]:
         """Re-ranks relevant documents to provide the best context for the answer."""
-        print("---NODE: Re-ranking documents---")
+        self.logger.info("---NODE: Re-ranking documents---")
         if not state.get("documents"):
             return {"documents": []}
         
@@ -311,16 +314,16 @@ Provide your response:
 
     def _decide_to_generate_or_fallback(self, state: RAGGraphState) -> str:
         """Decides whether to generate an answer or use a fallback response."""
-        print("---DECISION: Checking for relevant documents---")
+        self.logger.info("---DECISION: Checking for relevant documents---")
         if state.get("documents"):
-            print("---DECISION: Documents found, proceeding to generate.---")
+            self.logger.info("---DECISION: Documents found, proceeding to generate.---")
             return "generate"
-        print("---DECISION: No relevant documents, using fallback.---")
+        self.logger.info("---DECISION: No relevant documents, using fallback.---")
         return "fallback"
 
     def _generate_answer(self, state: RAGGraphState) -> Dict[str, Any]:
         """Generates the final answer using the re-ranked documents and conversation history."""
-        print("---NODE: Generating answer---")
+        self.logger.info("---NODE: Generating answer---")
         documents = state.get("documents", [])
         original_question = state["original_question"]
         conversation_memory = state.get("conversation_memory", {})
@@ -334,7 +337,7 @@ Provide your response:
 
         # If documents are insufficient but a contact was found, offer to draft an email.
         if not is_sufficient and contact_info_str:
-            print("---LOGIC: Insufficient docs, but contact found. Offering email draft.---")
+            self.logger.info("---LOGIC: Insufficient docs, but contact found. Offering email draft.---")
             generation = (
                 f"I could not find the specific information for your question, but I was able to find this contact who may be able to help: "
                 f"{contact_info_str}. I can help draft an email to this contact. Would you like me to proceed?"
@@ -342,7 +345,7 @@ Provide your response:
             return {"generation": generation, "documents": documents}
 
         # Proceed with enhanced RAG generation if documents are sufficient
-        print("---LOGIC: Sufficient docs found. Generating enhanced RAG answer.---")
+        self.logger.info("---LOGIC: Sufficient docs found. Generating enhanced RAG answer.---")
         context = self._format_documents_for_context(documents)
         history = self.query_processor.format_conversation_history(conversation_memory.get("history", []))
         
@@ -364,7 +367,7 @@ Provide your response:
 
     def _handle_no_documents_found(self, state: RAGGraphState) -> Dict[str, Any]:
         """Handles cases where no relevant documents are found - implements enhanced email-offer logic."""
-        print("---NODE: Handling no documents found---")
+        self.logger.info("---NODE: Handling no documents found---")
         
         question = state.get("question", "")
         original_question = state.get("original_question", question)
@@ -376,11 +379,11 @@ Provide your response:
         # Create a more specific, visually appealing response
         if contacts:
             contact_info_str = self._prepare_contact_info_for_prompt(contacts)
-            print(f"---LOGIC: No relevant docs, but contact found: {contact_info_str}. Offering email draft.---")
+            self.logger.info(f"---LOGIC: No relevant docs, but contact found: {contact_info_str}. Offering email draft.---")
             generation = self._create_specific_contact_response(original_question, contact_info_str)
         else:
             # No contacts found, provide helpful fallback with Richard Pallangyo as default contact
-            print("---LOGIC: No relevant docs and no contacts found. Providing enhanced guidance.---")
+            self.logger.info("---LOGIC: No relevant docs and no contacts found. Providing enhanced guidance.---")
             generation = self._create_specific_fallback_response(original_question)
         
         return {
@@ -427,8 +430,7 @@ I searched our UW procurement knowledge base for information about "{question.lo
 **How I Can Help**
 For {specific_context} like this, I recommend contacting:
 
-**Richard Pallangyo**  
-UW Procurement Office  
+**Richard Pallangyo** UW Procurement Office  
 Email: rapaugustino@gmail.com
 
 Would you like me to help draft an email to Richard requesting information about your specific procurement needs?
@@ -494,7 +496,7 @@ From our procurement policies, I know that specialized purchases often require a
         return relevant_docs
 
     def _rerank_documents_for_context_sync(self, documents: List[Document], question: str) -> List[Document]:
-        """Re-ranks documents to place the most relevant one first (placeholder)."""
+        """Re-ranks relevant documents to place the most relevant one first (placeholder)."""
         return documents
 
     def _are_documents_sufficient_for_answer_sync(self, documents: List[Document], question: str) -> bool:

@@ -1,4 +1,75 @@
-# UW Procurement Assistant - Backend
+# UW Procurement RAG Agent - Backend
+
+This directory contains the backend for the UW Procurement RAG Agent, a FastAPI application that provides a conversational interface for querying procurement policies.
+
+## Architecture
+
+The backend is built with FastAPI and leverages LangChain and Azure AI services to power a Retrieval-Augmented Generation (RAG) agent.
+
+- **API Server**: FastAPI with Uvicorn
+- **RAG Core**: LangChain and LangGraph for conversational flow and state management.
+- **LLM & Embeddings**: Azure OpenAI
+- **Vector Store**: Azure AI Search
+- **Streaming**: Server-Sent Events (SSE) for real-time responses.
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10+
+- An Azure account with access to Azure OpenAI and Azure AI Search.
+
+### Setup
+
+1.  **Clone the repository**
+
+2.  **Navigate to the backend directory:**
+    ```bash
+    cd backend
+    ```
+
+3.  **Create and activate a virtual environment:**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate
+    ```
+
+4.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5.  **Configure environment variables:**
+
+    Create a `.env` file by copying the `env.example` file:
+    ```bash
+    cp env.example .env
+    ```
+
+    Update the `.env` file with your Azure credentials:
+
+    ```
+    # Azure AI Search Configuration
+    AZURE_SEARCH_SERVICE_ENDPOINT="your-search-service-endpoint"
+    AZURE_SEARCH_INDEX_NAME="your-search-index-name"
+    AZURE_SEARCH_API_KEY="your-search-api-key"
+
+    # Azure OpenAI Configuration
+    AZURE_OPENAI_ENDPOINT="your-openai-endpoint"
+    AZURE_OPENAI_API_KEY="your-openai-api-key"
+    AZURE_OPENAI_API_VERSION="2024-02-01"
+    AZURE_OPENAI_DEPLOYMENT_NAME="your-openai-deployment-name"
+    ```
+
+### Running the Server
+
+To start the FastAPI server, run the following command from the `backend` directory:
+
+```bash
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+The API will be available at `http://localhost:8000`.
 
 This directory contains the source code for the FastAPI backend that powers the UW Procurement Assistant. It handles all the core logic, including the RAG agent, knowledge base integration, and API endpoints.
 

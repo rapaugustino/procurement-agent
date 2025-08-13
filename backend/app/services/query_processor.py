@@ -4,6 +4,7 @@ Advanced query rewriting with conversation context
 Integrated from python-script-testing.py
 """
 
+import logging
 from typing import Dict, Any, List
 from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts import PromptTemplate
@@ -17,18 +18,19 @@ class QueryProcessor:
     
     def __init__(self, llm: AzureChatOpenAI):
         self.llm = llm
+        self.logger = logging.getLogger(__name__)
     
     async def rewrite_query(self, question: str, conversation_memory: Dict[str, Any]) -> str:
         """
         Rewrite the user's question for better retrieval, incorporating chat history.
         Includes strict rules to prevent topic deviation.
         """
-        print("---NODE: REWRITING QUERY---")
+        self.logger.info("---NODE: REWRITING QUERY---")
         
         # Format conversation history
         history = conversation_memory.get("history", [])
         if not history:
-            print("No conversation history - using original query")
+            self.logger.info("No conversation history - using original query")
             return question
         
         # Get recent conversation context (last 2 exchanges)
@@ -81,16 +83,16 @@ class QueryProcessor:
             
             # Safety check: if rewrite is too different or empty, use original
             if not rewritten_query or len(rewritten_query) < 5:
-                print("Rewritten query too short - using original")
+                self.logger.warning("Rewritten query too short - using original")
                 return question
             
-            print(f"Original: {question}")
-            print(f"Rewritten: {rewritten_query}")
+            self.logger.info(f"Original: {question}")
+            self.logger.info(f"Rewritten: {rewritten_query}")
             
             return rewritten_query
             
         except Exception as e:
-            print(f"Error rewriting query: {e}")
+            self.logger.error(f"Error rewriting query: {e}")
             return question  # Fallback to original query
     
     def is_procurement_related(self, question: str) -> bool:

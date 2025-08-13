@@ -1,72 +1,66 @@
 """
-API router for handling agent-related requests, including streaming RAG queries.
+API endpoints for the RAG agent.
+
+This module defines the routes for querying the RAG agent, including the
+streaming endpoint for real-time responses.
 """
 
-import asyncio
-import uuid
-import json
-from typing import Optional
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from sse_starlette.sse import EventSourceResponse
+import logging
+from functools import lru_cache
+from typing import AsyncGenerator
+
+from fastapi import APIRouter, Depends, HTTPException
+from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 
 from ..agents.rag_agent import RAGAgent
+from ..models.request import QueryRequest
 
+# Configure logging
+logger = logging.getLogger(__name__)
 
-class AgentQuery(BaseModel):
-    """Request model for agent queries"""
-    question: str
-    conversation_id: Optional[str] = None
-
+# Create a new router for the agent endpoints
 router = APIRouter()
 
-# Initialize agents
-# In a real app, you might use a dependency injection system
-rag_agent = RAGAgent()
+
+@lru_cache
+def get_rag_agent() -> RAGAgent:
+    """
+    Dependency function to get a cached RAGAgent instance.
+    Using lru_cache ensures the agent is a singleton, created only once.
+    """
+    logger.info("Initializing RAGAgent singleton...")
+    return RAGAgent()
+
 
 @router.post("/query/stream")
-async def query_agent_stream(query: AgentQuery):
+async def stream_query(
+    request: QueryRequest,
+    rag_agent: RAGAgent = Depends(get_rag_agent),
+) -> EventSourceResponse:
     """
-    Handles a streaming query to the RAG agent.
+    Streams the RAG agent's response for a given query.
 
     This endpoint consumes the async generator from the RAGAgent and streams
-    its responses back to the client using Server-Sent Events (SSE).
+    the response back to the client chunk by chunk using Server-Sent Events (SSE).
+
+    Args:
+        request: The request body containing the user's question and conversation ID.
+        rag_agent: The dependency-injected RAGAgent instance.
+
+    Returns:
+        An EventSourceResponse that streams the agent's response.
     """
-    question = query.question
-    conversation_id = query.conversation_id or f"user_{uuid.uuid4()}"
-    task_id = str(uuid.uuid4())
 
-    if not question:
-        raise HTTPException(status_code=400, detail="Question cannot be empty.")
-
-    async def stream_generator():
-        """Generator function that yields data from the RAG agent stream."""
+    async def stream_generator() -> AsyncGenerator[ServerSentEvent, None]:
+        """An async generator that yields Server-Sent Events."""
         try:
-            async for chunk in rag_agent.run(question, conversation_id, task_id):
-                if isinstance(chunk, str):
-                    # Format response as JSON for Teams frontend
-                    response_data = {
-                        "type": "chunk",
-                        "content": chunk,
-                        "task_id": task_id
-                    }
-                    yield json.dumps(response_data)
-                else:
-                    # Handle potential error dicts or other objects if needed
-                    response_data = {
-                        "type": "chunk", 
-                        "content": str(chunk),
-                        "task_id": task_id
-                    }
-                    yield json.dumps(response_data)
+            async for chunk in rag_agent.stream_run(
+                question=request.question, conversation_id=request.conversation_id
+            ):
+                yield ServerSentEvent(data=chunk)
         except Exception as e:
-            error_message = f"An error occurred during streaming: {e}"
-            print(error_message)
-            error_data = {
-                "type": "error",
-                "content": error_message,
-                "task_id": task_id
-            }
-            yield json.dumps(error_data)
+            logger.error(f"Error during stream for conversation {request.conversation_id}: {e}", exc_info=True)
+            error_message = {"error": "An unexpected error occurred.", "details": str(e)}
+            yield ServerSentEvent(data=str(error_message), event="error")
 
     return EventSourceResponse(stream_generator())

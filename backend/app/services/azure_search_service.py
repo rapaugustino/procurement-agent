@@ -5,6 +5,7 @@ Migrated from notebook code with improved modularity.
 
 import requests
 import json
+import logging
 from typing import List
 from langchain_core.documents import Document
 
@@ -26,6 +27,7 @@ class AdaptiveHybridAzureSearchRetriever:
             'api-key': search_key
         }
         self.semantic_available = None  # Will be detected on first use
+        self.logger = logging.getLogger(__name__)
     
     def _check_semantic_availability(self) -> bool:
         """Check if semantic search is configured for this index"""
@@ -44,13 +46,13 @@ class AdaptiveHybridAzureSearchRetriever:
             if configurations:
                 self.semantic_available = True
                 self.semantic_config_name = configurations[0].get('name', 'default')
-                print(f"✅ Semantic search detected - using config: {self.semantic_config_name}")
+                self.logger.info(f"Semantic search detected - using config: {self.semantic_config_name}")
             else:
                 self.semantic_available = False
-                print("ℹ️  No semantic search configured - using standard hybrid search")
+                self.logger.info("No semantic search configured - using standard hybrid search")
         else:
             self.semantic_available = False
-            print("⚠️  Could not check semantic config - using standard hybrid search")
+            self.logger.warning("Could not check semantic config - using standard hybrid search")
             
         return self.semantic_available
     
@@ -94,7 +96,7 @@ class AdaptiveHybridAzureSearchRetriever:
             documents = []
             
             search_type = "SEMANTIC HYBRID" if has_semantic else "STANDARD HYBRID"
-            print(f"✅ {search_type} SEARCH SUCCESS - Combined vector + keyword search")
+            self.logger.info(f"{search_type} SEARCH SUCCESS - Combined vector + keyword search")
             
             for doc in results.get('value', []):
                 # Extract captions if available (semantic search feature)
@@ -118,7 +120,7 @@ class AdaptiveHybridAzureSearchRetriever:
             return documents
         else:
             # Fallback to vector-only search if hybrid fails
-            print(f"Hybrid search failed ({response.status_code}), falling back to vector-only")
+            self.logger.warning(f"Hybrid search failed ({response.status_code}), falling back to vector-only")
             return self._vector_only_search(query)
     
     def _vector_only_search(self, query: str) -> List[Document]:
@@ -143,7 +145,7 @@ class AdaptiveHybridAzureSearchRetriever:
             results = response.json()
             documents = []
             
-            print("⚠️  Using vector-only search (still very good results)")
+            self.logger.info("Using vector-only search (still very good results)")
             
             for doc in results.get('value', []):
                 document = Document(
@@ -159,5 +161,5 @@ class AdaptiveHybridAzureSearchRetriever:
             
             return documents
         else:
-            print(f"Vector search also failed: {response.status_code}")
+            self.logger.error(f"Vector search also failed: {response.status_code}")
             return []
